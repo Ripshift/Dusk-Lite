@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dusk — Campaign Sourcebook Study Guide</title>
+
+<style>
+/* -----------------------------------
+   COLOR VARIABLES
+----------------------------------- */
+:root {
+    --bg: #0b0b0d;
+    --text: #e8e0dc;
+    --accent: #ffb4b4;
+    --ink: #3a1a1f;
+    --blood: #7a1a1f;
+}
+
+/* -----------------------------------
+   GLOBAL
+----------------------------------- */
+body {
+    margin: 0;
+    font-family: "Crimson Text", "Georgia", serif;
+    color: var(--text);
+    line-height: 1.7;
+    scroll-behavior: smooth;
+    background: var(--bg);
+    background-image: url('bg-threepanel.png');
+    background-repeat: no-repeat;
+    background-size: 300% 100%;
+    background-position: center center;
+    margin-left: 220px;
+}
+
+body.darkmode {
+    --bg: #0b0b0d;
+    --text: #e8e0dc;
+    --accent: #ffb4b4;
+    --ink: #3a1a1f;
+    --blood: #7a1a1f;
+    background-position: center center;
+}
+
+body.lightmode {
+    --bg: #f4e9d2;
+    --text: #2b1b1b;
+    --accent: #7a1a1f;
+    --ink: #5a3a3a;
+    --blood: #a22a2a;
+    background-position: left center;
+}
+
+body.bloodmode {
+    --bg: #190b0c;
+    --text: #f1dad2;
+    --accent: #e3a9a0;
+    --ink: #2f1314;
+    --blood: #bf1e1e;
+    background-position: right center;
+}
+
+/* Save the attached split-variant image as bg-threepanel.png in the same folder as this HTML file. */
+
+/* -----------------------------------
+   DARK MODE TOGGLE
+----------------------------------- */
+.theme-toggle {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    background: #1a0f12;
+    border: 2px solid var(--blood);
+    color: var(--accent);
+    padding: 0.5rem 0.7rem;
+    border-radius: 50%;
+    font-size: 1.4rem;
+    cursor: pointer;
+    z-index: 3000;
+    transition: all 0.3s ease;
+}
+.theme-toggle:hover {
+    background: #2b0f14;
+    box-shadow: 0 0 10px var(--blood);
+}
+
+/* -----------------------------------
+   MOBILE MENU BUTTON
+----------------------------------- */
+.menu-toggle {
+    display: none;
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    background: #120b0d;
+    border: 2px solid var(--ink);
+    color: var(--accent);
+    padding: 0.4rem 0.6rem;
+    font-size: 1.4rem;
+    z-index: 3000;
+    cursor: pointer;
+}
+
+/* -----------------------------------
+   SIDEBAR NAVIGATION
+----------------------------------- */
+nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 220px;
+    height: 100vh;
+    background: #120b0d;
+    border-right: 2px solid var(--ink);
+    padding-top: 2rem;
+    z-index: 2500;
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+nav a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: bold;
+    padding: 0.6rem 1rem;
+    display: block;
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+/* ACTIVE SECTION HIGHLIGHT — C‑2 (Animated underline, no droplet) */
+nav a.active::after {
+    content: "";
+    position: absolute;
+    left: 1rem;
+    right: 1rem;
+    bottom: 0.2rem;
+    height: 2px;
+    background: var(--blood);
+    animation: underlineDraw 0.6s ease-out forwards;
+    transform-origin: left;
+    transform: scaleX(0);
+}
+
+@keyframes underlineDraw {
+    to { transform: scaleX(1); }
+}
+
+nav a:hover {
+    color: #ffffff;
+}
+
+/* -----------------------------------
+   MOBILE COLLAPSIBLE SIDEBAR
+----------------------------------- */
+@media (max-width: 800px) {
+    body {
+        margin-left: 0;
+    }
+
+    nav {
+        transform: translateX(-100%);
+    }
+
+    nav.open {
+        transform: translateX(0);
+    }
+
+    .menu-toggle {
+        display: block;
+    }
+}
+
+/* -----------------------------------
+   HEADER
+----------------------------------- */
+header {
+    background: linear-gradient(180deg, #2b0f14, #12090b);
+    padding: 3rem 1rem;
+    text-align: center;
+    border-bottom: 3px solid var(--ink);
+    text-shadow: 0 0 8px #2b0f14;
+    animation: fadeIn 1.5s ease-out;
+}
+
+h1, h2, h3 {
+    color: var(--accent);
+    letter-spacing: 1px;
+}
+
+h2 {
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 0.4rem;
+    margin-top: 3rem;
+}
+
+/* -----------------------------------
+   ARCANE SIGIL
+----------------------------------- */
+.sigil {
+    width: 90px;
+    margin: 0 auto 1rem auto;
+    display: block;
+    opacity: 0.8;
+}
+
+/* -----------------------------------
+   CONTENT
+----------------------------------- */
+section {
+    max-width: 900px;
+    margin: auto;
+    padding: 2rem 1.5rem;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: reveal 0.8s ease-out forwards;
+}
+section:nth-of-type(odd) { animation-delay: 0.2s; }
+section:nth-of-type(even) { animation-delay: 0.4s; }
+
+/* -----------------------------------
+   BLOOD-INK DIVIDER (Hybrid Option 1 + 3)
+----------------------------------- */
+.divider {
+    border-top: 2px solid var(--ink);
+    margin: 3rem 0;
+    position: relative;
+    animation: pulseBleed 1.2s ease-out;
+}
+
+@keyframes pulseBleed {
+    0% { box-shadow: 0 0 0px var(--blood); }
+    50% { box-shadow: 0 0 12px var(--blood); }
+    100% { box-shadow: 0 0 0px var(--blood); }
+}
+
+/* Slow drip */
+.divider::after {
+    content: "";
+    position: absolute;
+    top: -4px;
+    left: 0.1%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    background: var(--blood);
+    border-radius: 50%;
+    animation: slowDrip 3s infinite ease-in;
+}
+
+@keyframes slowDrip {
+    0% { opacity: 1; transform: translate(-50%, 0); }
+    70% { opacity: 1; transform: translate(-50%, 12px); }
+    100% { opacity: 0; transform: translate(-50%, 20px); }
+}
+
+/* -----------------------------------
+   FOOTER
+----------------------------------- */
+.footer {
+    text-align: center;
+    padding: 2rem;
+    color: #8a7d78;
+    font-size: 0.9rem;
+    border-top: 1px solid var(--ink);
+    margin-top: 4rem;
+}
+
+/* -----------------------------------
+   ANIMATIONS
+----------------------------------- */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+@keyframes reveal {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+
+<body class="darkmode">
+
+<!-- MOBILE MENU BUTTON -->
+<button class="menu-toggle" id="menuToggle">☰</button>
+
+<!-- DARK MODE TOGGLE -->
+<button id="themeToggle" class="theme-toggle">🌘</button>
+
+<!-- SIDEBAR NAVIGATION -->
+<nav id="sidebar">
+  <ul>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#themes">Themes</a></li>
+    <li><a href="#mechanics">Mechanics</a></li>
+    <li><a href="#questions">Questions</a></li>
+    <li><a href="#takeaways">Takeaways</a></li>
+    <li><a href="#checklist">Checklist</a></li>
+    <li><a href="#gmtools">GM Tools</a></li>
+  </ul>
+</nav>
+
+<header>
+    <svg class="sigil" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="45" stroke="#7a1a1f" stroke-width="3" fill="none"/>
+        <polygon points="50,10 90,85 10,85" stroke="#ffb4b4" stroke-width="2" fill="none"/>
+        <circle cx="50" cy="50" r="8" fill="#7a1a1f"/>
+    </svg>
+
+    <h1>Dusk — Campaign Sourcebook</h1>
+    <p>Study Guide & Quick Reference</p>
+</header>
+
+<!-- CONTENT SECTIONS -->
+<section id="overview">
+    <h2>Overview</h2>
+    <p><strong>Dusk</strong> is a compact gothic roleplaying setting built around three pillars: <strong>the light clock</strong>, <strong>ledgered majic</strong>, and <strong>factional obligation</strong>. The world's weak red sun and ice‑blue moon shape travel, combat, and ritual. Power is divided among the Drow Autonomy, Covens, Packs, the Free State, the Web, and independent shamans. The Hidden Circle's demonic bargains drive the crisis known as the <strong>Unraveling</strong>.</p>
+    <p>Dusk is a world that never fully woke up. The sun arrives as a promise it cannot keep — bleeding up from the horizon, holding for a few hours at a low and insufficient angle, then falling in less than a minute. The people of Dusk have built entire civilizations around this insufficiency: their architecture accounts for it, their politics exploit it, their religion interprets it, and their predators depend on it.</p>
+    <p>The dominant racial power — the Drow — are not monsters. They are survivors of something monstrous that happened to their ancestors, and their current character is shaped by the specific grief of that transformation: a civilization that was something and became something else, and that has been arguing about what it lost and what it gained ever since. The Vampyres mourn what they lost when they Formed. Lycanthropes argue about whether loss is the right word. Drow look at both and cannot agree whether they are looking at their own future or their own past.</p>
+    <p>Into this argument, humans arrived — mundane, mortal, adaptable, and stubbornly unwilling to be peripheral. They did not receive the question the same way the Drow did, and this makes them either the most useful allies in the world or its most dangerous wildcards.</p>
+</section>
+
+<div class="divider"></div>
+
+<section id="themes">
+    <h2>Main Topics & Themes</h2>
+    <h3>Light as a Game Clock</h3>
+    <ul>
+        <li>30‑minute weak‑light window after sunrise; sunset lasts under a minute.</li>
+        <li>Moon phases (15‑day cycle) and tidal month (30 days) affect Packs and Covens.</li>
+        <li>Regional variations: Highland delay, forest canopy, Basin fog, Snowfields zero-window.</li>
+    </ul>
+
+    <h3>Factions & Power</h3>
+    <ul>
+        <li><strong>Drow Autonomy</strong>: lineage, law, Matriarchate, Inquisition, Web intelligence.</li>
+        <li><strong>Covens</strong>: vampyre houses, blood‑archives, Pale‑Remembrance.</li>
+        <li><strong>Packs</strong>: lycanthropic great‑houses, Hunt Courts, Pack‑Rebirth.</li>
+        <li><strong>Free State</strong>: neutral commerce, Guild Tallies.</li>
+        <li><strong>Web</strong>: memory‑binding, dossiers, covert operations.</li>
+        <li><strong>Hidden Circle</strong>: demonic investments causing the Unraveling.</li>
+        <li><strong>Shamans</strong>: neutrality imperative, cross-faction access.</li>
+    </ul>
+
+    <h3>Core Themes</h3>
+    <ul>
+        <li>Gothic Intimacy: Horror is personal, relationships are key.</li>
+        <li>Political Horror: Survival is political, affiliation matters.</li>
+        <li>Ritual and Obligation: Deals are binding, spirits enforce promises.</li>
+        <li>The Cost of Purity: Forming's grief shapes Drow society.</li>
+        <li>Form Over Blood: What you became matters more than birth.</li>
+    </ul>
+
+    <h3>World History</h3>
+    <ul>
+        <li>Pale-Elf Period: Surface-oriented, demon-contact points.</li>
+        <li>Interregnum: Post-blight chaos.</li>
+        <li>Current Age: 400-year stability, Hidden Circle instability.</li>
+    </ul>
+</section>
+
+<div class="divider"></div>
+
+<section id="mechanics">
+    <h2>Quick Reference Mechanics</h2>
+    <h3>Light Cycle</h3>
+    <ul>
+        <li>Pre-Dawn (Black Hour): 20-30 min before sunrise.</li>
+        <li>Sunrise: 5-10 min ascent.</li>
+        <li>Transition Window: 0-30 min; undead active, Formed retain capabilities.</li>
+        <li>Daylight: 2-5 hours; varies by season/region.</li>
+        <li>Sunset: <1 min drop.</li>
+    </ul>
+
+    <h3>Moon & Tide</h3>
+    <ul>
+        <li>Lunar Cycle: 15 days; Full Moon (Day 8) peaks Pack activity.</li>
+        <li>Tidal Month: 30 days; Stages A-F; Stage A coincides with Full Moon.</li>
+        <li>Alignment: Lunar and tidal cycles sync at peaks.</li>
+    </ul>
+
+    <h3>Forming</h3>
+    <ul>
+        <li>Vampyre: Surveillance, action, rogue, Elder sanction.</li>
+        <li>Lycanthrope: Escalation sequences, Pack cohesion.</li>
+        <li>Silver: No regeneration, pain amplification.</li>
+        <li>Spiritual Sensitivity: Ancestor spirits, wights/revenants.</li>
+    </ul>
+
+    <h3>Majic</h3>
+    <ul>
+        <li>Bloodcraft: Ledger, blood pool, operations (Mass Read, Red-Iron Blade).</li>
+        <li>Spirit-Binding: Negotiation, emergency binding.</li>
+        <li>Pactcraft: Investments, demonic bargains.</li>
+        <li>Forming: Thresholds, deliberate vs. involuntary.</li>
+        <li>Sun-Work: Light window, demonic attention.</li>
+        <li>Transactional Principle: Ledger balance, Spirit-Scars.</li>
+    </ul>
+
+    <h3>Economy & Trade</h3>
+    <ul>
+        <li>Currency: Copper, Silver Marks, Bloodmarks, Guild Tallies.</li>
+        <li>Price Formula: Base × (1 + 0.1 × (S + D + R)).</li>
+        <li>Caravan: Logistics, smuggling.</li>
+        <li>Information Economy: Knowledge as currency.</li>
+    </ul>
+
+    <h3>Combat & Arms</h3>
+    <ul>
+        <li>Arms by Tier: Autonomy (formal), Free State (mercenary), Lower Class (improvised).</li>
+        <li>Bloodcraft/Sun-Work in Combat: Ledger manipulation, light manipulation.</li>
+        <li>Morale: Faction-specific, Pack cohesion.</li>
+    </ul>
+</section>
+
+<div class="divider"></div>
+
+<section id="questions">
+    <h2>Practice Questions</h2>
+    <ol>
+        <li><strong>What does the 30‑minute weak‑light window do for Vampyres?</strong><br>
+            They retain full Formed capabilities; sunlight becomes harmful after 30 minutes.</li>
+        <li><strong>Name three currencies and their factions.</strong><br>
+            Copper (everyday), Silver Marks (Autonomy), Bloodmarks (Covens), Guild Tallies (Free State).</li>
+        <li><strong>What happens when a Drow undergoes Forming?</strong><br>
+            They undergo Severing Night—loss of lineage status.</li>
+        <li><strong>How does Bloodcraft drive narrative?</strong><br>
+            It leaves readable traces that fuel political leverage.</li>
+        <li><strong>What triggers the Unraveling?</strong><br>
+            Hidden Circle bargains coming due, causing spiritual and political collapse.</li>
+        <li><strong>Describe the spiritual hierarchy in Dusk.</strong><br>
+            Living → Ancestor Spirits → Nature Spirits → Spirit Guides → Angels.</li>
+        <li><strong>What are the five disciplines of majic?</strong><br>
+            Bloodcraft, Spirit-Binding, Pactcraft, Forming, Sun-Work.</li>
+        <li><strong>How does the Empty Maw manifest?</strong><br>
+            Fractures: glossed voids, blank hours, misfit maps; psychic echoes.</li>
+        <li><strong>Name the major cities and their controlling factions.</strong><br>
+            Blackstone (Autonomy), Fenhold (Pack/Naga), Marrowgate (Coven/Web), Mercantile Haven (Free State), Sable Port (Coven).</li>
+        <li><strong>What is the significance of the moon in Dusk?</strong><br>
+            Ice-blue, tidal heating, spiritual significance as ancestor presence.</li>
+    </ol>
+</section>
+
+<div class="divider"></div>
+
+<section id="takeaways">
+    <h2>Key Takeaways</h2>
+    <ul>
+        <li>Timing is everything: light, moon, tide shape all activities.</li>
+        <li>Documents and blood shape politics: lineage papers, blood-compacts.</li>
+        <li>Majic is transactional and traceable: ledger balance, Spirit-Scars.</li>
+        <li>Factions are interdependent and unstable: leverage points, obligation networks.</li>
+        <li>Dusk rewards investigation and consequence‑driven play.</li>
+        <li>Gothic intimacy: Horror is personal, relationships key.</li>
+        <li>Political horror: Survival is political, affiliation matters.</li>
+        <li>Ritual obligation: Spirits enforce promises.</li>
+        <li>Cost of purity: Forming's grief shapes society.</li>
+        <li>Form over blood: What you became matters more than birth.</li>
+        <li>Empty Maw: Absence as ontological threat.</li>
+        <li>World history: Pale-elf legacy, Shattering, current instability.</li>
+    </ul>
+</section>
+
+<div class="divider"></div>
+
+<section id="checklist">
+    <h2>Study Checklist</h2>
+    <ul>
+        <li>Memorize the weak‑light window and regional variations.</li>
+        <li>Learn lunar and tidal cycles, including alignments.</li>
+        <li>Understand Forming mechanics and racial dynamics.</li>
+        <li>Review all majic disciplines and transactional principle.</li>
+        <li>Know key factions, NPCs, and their relationships.</li>
+        <li>Master economy: currencies, price formula, trade mechanics.</li>
+        <li>Study settlements: cities, towns, villages by region.</li>
+        <li>Grasp religion: spiritual hierarchy, ancestor worship, shamans.</li>
+        <li>Understand the Empty Maw: manifestations, faction responses.</li>
+        <li>Review world: planet, climate, history, cosmology.</li>
+    </ul>
+</section>
+
+<div class="divider"></div>
+
+<section id="gmtools">
+    <h2>GM Tools & Handouts</h2>
+
+    <h3>Moon & Tide Tracker</h3>
+    <ul>
+        <li>15‑day lunar cycle with Full Moon on Day 8</li>
+        <li>30‑day tidal month divided into six 5‑day stages</li>
+        <li>Pack and Coven activity modifiers</li>
+        <li>Stage A-F effects on coastal settlements</li>
+    </ul>
+
+    <h3>Lineage Paper Template</h3>
+    <ul>
+        <li>House seal and registered ancestors</li>
+        <li>Issued date and severance clause</li>
+        <li>Forgery difficulty and Web detection chance</li>
+        <li>Autonomy entry requirements</li>
+    </ul>
+
+    <h3>Blood‑Compact Template</h3>
+    <ul>
+        <li>Parties, terms, and blood‑seal impression</li>
+        <li>Ledger trace strength (1–5)</li>
+        <li>Enforcement clause and political consequences</li>
+        <li>Coven archive integration</li>
+    </ul>
+
+    <h3>Web Exposure Tracker</h3>
+    <ul>
+        <li>Visibility levels from "Unseen" to "Compromised"</li>
+        <li>Likely Web responses at each tier</li>
+        <li>Faction leverage indicators</li>
+        <li>Intelligence operations in settlements</li>
+    </ul>
+
+    <h3>Light Clock Tracker</h3>
+    <ul>
+        <li>Round-by-round sunrise window</li>
+        <li>Regional variations: Highland delay, forest canopy</li>
+        <li>Combat implications for Formed</li>
+    </ul>
+
+    <h3>Faction Encounter Tables</h3>
+    <ul>
+        <li>Random encounters by region</li>
+        <li>Difficulty checks, Web awareness tracker</li>
+        <li>Pack encounter protocol, Coven operations</li>
+    </ul>
+
+    <h3>Social Encounter Frameworks</h3>
+    <ul>
+        <li>Negotiation templates</li>
+        <li>Majic in play: traces, misfires, costs</li>
+        <li>Horror pacing tools</li>
+    </ul>
+
+    <h3>Set Pieces</h3>
+    <ul>
+        <li>Severing Night, blood-library heist, Hunt Court, dawn duel</li>
+        <li>Unraveling tracker, handout props</li>
+        <li>Random generators: names, information economy</li>
+    </ul>
+
+    <h3>Spiritual Investigation Tools</h3>
+    <ul>
+        <li>Ancestor contact mechanics</li>
+        <li>Shaman rites: birth, death, Forming, hunt blessing</li>
+        <li>Nature spirits by region</li>
+        <li>Empty Maw fractures and crises</li>
+    </ul>
+</section>
+
+<div class="footer">
+    End of Study Guide — Dusk Campaign Sourcebook
+</div>
+
+<!-- SCRIPTS -->
+<script>
+/* THEME MODE CYCLE */
+const toggle = document.getElementById("themeToggle");
+const themeModes = [
+    { mode: "darkmode", icon: "🌘", label: "Dark Mode" },
+    { mode: "lightmode", icon: "🌕", label: "Light Mode" },
+    { mode: "bloodmode", icon: "🩸", label: "Blood Mode" }
+];
+let activeTheme = 0;
+
+function applyTheme(index) {
+    document.body.classList.remove("darkmode", "lightmode", "bloodmode");
+    document.body.classList.add(themeModes[index].mode);
+    toggle.textContent = themeModes[index].icon;
+    toggle.setAttribute("aria-label", themeModes[index].label);
+    activeTheme = index;
+}
+
+toggle.addEventListener("click", () => {
+    applyTheme((activeTheme + 1) % themeModes.length);
+});
+
+applyTheme(activeTheme);
+
+/* MOBILE SIDEBAR TOGGLE */
+const menuToggle = document.getElementById("menuToggle");
+const sidebar = document.getElementById("sidebar");
+
+menuToggle.addEventListener("click", () => {
+    sidebar.classList.toggle("open");
+});
+
+/* ACTIVE SECTION HIGHLIGHT — Option X (smooth tracking) */
+const sections = document.querySelectorAll("section");
+const navLinks = document.querySelectorAll("nav a");
+
+function activateSection() {
+    let scrollPos = window.scrollY + window.innerHeight * 0.25;
+
+    sections.forEach(sec => {
+        if (scrollPos >= sec.offsetTop && scrollPos < sec.offsetTop + sec.offsetHeight) {
+            navLinks.forEach(link => link.classList.remove("active"));
+            const activeLink = document.querySelector(`nav a[href="#${sec.id}"]`);
+            if (activeLink) activeLink.classList.add("active");
+        }
+    });
+}
+
+window.addEventListener("scroll", activateSection);
+activateSection();
+</script>
+
+</body>
+</html>
