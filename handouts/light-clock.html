@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dusk — Light Clock</title>
+<link rel="stylesheet" href="../assets/dusk.css">
+<style>
+  .head{text-align:center;margin-bottom:14px}
+  .head .imprint{font-family:"IM Fell English SC",serif;font-size:10px;letter-spacing:.4em;color:var(--rust);text-transform:uppercase}
+  .head h1{font-size:54px;line-height:1;margin:6px 0}
+  .head .h1-gilt{
+    background:linear-gradient(180deg,#8a5d1c 0%,#d9ad48 30%,#f0d480 50%,#b07f24 70%,#8a5d1c 100%);
+    background-clip:text;-webkit-background-clip:text;color:transparent;
+  }
+  .clock-wrap{display:flex;justify-content:center;margin:20px 0}
+  .clock{
+    width:380px;height:380px;border-radius:50%;
+    background:radial-gradient(circle at 50% 30%,#3a200f 0%,#1c0f08 70%);
+    border:3px solid var(--gilt);
+    box-shadow:
+      0 0 0 1px var(--gilt-deep),
+      0 0 30px rgba(168,123,46,.3),
+      inset 0 0 40px rgba(0,0,0,.5);
+    position:relative;cursor:pointer;
+  }
+  .clock svg{position:absolute;inset:0;width:100%;height:100%}
+  .clock .label{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    text-align:center;color:var(--vellum);
+  }
+  .clock .label .phase{font-family:"IM Fell English",serif;font-size:28px;font-style:italic}
+  .clock .label .time{font-family:"IM Fell English SC",serif;font-size:10px;letter-spacing:.3em;color:var(--gilt-bright);margin-top:6px}
+  .phases-legend{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:12px;border-top:1px solid var(--ink-3);border-left:1px solid var(--ink-3)}
+  .leg{padding:10px 12px;border-right:1px solid var(--ink-3);border-bottom:1px solid var(--ink-3);cursor:pointer;transition:background .2s}
+  .leg:hover{background:rgba(168,123,46,.08)}
+  .leg.active{background:rgba(122,26,31,.1)}
+  .leg .swatch{width:14px;height:14px;border-radius:50%;display:inline-block;margin-right:6px;vertical-align:middle;border:1px solid var(--ink)}
+  .leg .name{font-family:"IM Fell English SC",serif;font-size:10px;letter-spacing:.22em;color:var(--blood-deep);text-transform:uppercase}
+  .leg .dur{font-family:"IM Fell English",serif;font-style:italic;font-size:13px;color:var(--ink);margin-top:3px}
+  .leg .effect{font-size:11.5px;color:var(--ink-2);font-style:italic;margin-top:3px;line-height:1.4}
+  .section-h{font-family:"IM Fell English SC",serif;font-size:11px;letter-spacing:.3em;color:var(--blood-deep);border-bottom:1px solid var(--ink);padding-bottom:3px;margin:18px 0 8px;text-transform:uppercase}
+  .regions{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--ink-3);border-left:1px solid var(--ink-3)}
+  .region{padding:10px 14px;border-right:1px solid var(--ink-3);border-bottom:1px solid var(--ink-3)}
+  .region .name{font-family:"IM Fell English",serif;font-style:italic;font-size:16px;color:var(--ink)}
+  .region .effect{font-size:13px;line-height:1.45;color:var(--ink-2);margin-top:3px}
+  .head .deck{font-style:italic;font-size:14px;color:var(--ink-2)}
+  .play{
+    position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);
+    background:var(--vellum);border:1px solid var(--ink);padding:6px 14px;
+    font-family:"IM Fell English SC",serif;font-size:10px;letter-spacing:.25em;cursor:pointer;
+    color:var(--ink);text-transform:uppercase;
+  }
+  .play:hover{background:var(--vellum-deep)}
+</style>
+</head>
+<body>
+<div class="desk">
+  <a href="../index.html" class="back-link">← Handouts</a>
+  <div class="sheet">
+    <div class="paper-texture"></div>
+    <span class="stain s1"></span><span class="stain s3"></span>
+    <div class="frame-border">
+      <svg class="corner tl" viewBox="0 0 28 28"><path d="M2 14 Q2 2 14 2 M6 2 L6 6 M14 6 L18 6" stroke="currentColor" stroke-width="1" fill="none"/><circle cx="6" cy="6" r="1.5" fill="currentColor"/></svg>
+      <svg class="corner tr" viewBox="0 0 28 28"><path d="M2 14 Q2 2 14 2 M6 2 L6 6 M14 6 L18 6" stroke="currentColor" stroke-width="1" fill="none"/><circle cx="6" cy="6" r="1.5" fill="currentColor"/></svg>
+      <svg class="corner bl" viewBox="0 0 28 28"><path d="M2 14 Q2 2 14 2 M6 2 L6 6 M14 6 L18 6" stroke="currentColor" stroke-width="1" fill="none"/><circle cx="6" cy="6" r="1.5" fill="currentColor"/></svg>
+      <svg class="corner br" viewBox="0 0 28 28"><path d="M2 14 Q2 2 14 2 M6 2 L6 6 M14 6 L18 6" stroke="currentColor" stroke-width="1" fill="none"/><circle cx="6" cy="6" r="1.5" fill="currentColor"/></svg>
+    </div>
+
+    <div class="head">
+      <div class="imprint">Universal · The Insufficient Sun</div>
+      <h1 class="h1-gilt">Light Clock</h1>
+      <div class="deck">— click upon a phase, or wind the hand —</div>
+    </div>
+    <div class="gilt-rule"></div>
+
+    <div class="clock-wrap">
+      <div class="clock" id="clock">
+        <svg viewBox="0 0 400 400">
+          <!-- 5 phase arcs -->
+          <defs>
+            <linearGradient id="black" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a0604"/><stop offset="1" stop-color="#1c0f08"/></linearGradient>
+            <linearGradient id="rise" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6a1814"/><stop offset="1" stop-color="#3a0e0a"/></linearGradient>
+            <linearGradient id="trans" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a85a2e"/><stop offset="1" stop-color="#5a2e14"/></linearGradient>
+            <linearGradient id="day" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d4a44a"/><stop offset="1" stop-color="#7a4520"/></linearGradient>
+            <linearGradient id="set" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7a1a1f"/><stop offset="1" stop-color="#2a0608"/></linearGradient>
+          </defs>
+          <!-- arcs: 5 phases unequal: black 30%, rise 8%, trans 12%, day 48%, set 2% -->
+          <g transform="translate(200,200)">
+            <path d="M 0 -170 A 170 170 0 0 1 134.36 -103.83 L 0 0 Z" fill="url(#rise)" stroke="#1c0f08" stroke-width="1" data-phase="rise"/>
+            <path d="M 134.36 -103.83 A 170 170 0 0 1 168.95 -19.05 L 0 0 Z" fill="url(#trans)" stroke="#1c0f08" stroke-width="1" data-phase="trans"/>
+            <path d="M 168.95 -19.05 A 170 170 0 0 1 -69.85 155.07 L 0 0 Z" fill="url(#day)" stroke="#1c0f08" stroke-width="1" data-phase="day"/>
+            <path d="M -69.85 155.07 A 170 170 0 0 1 -103.83 134.36 L 0 0 Z" fill="url(#set)" stroke="#1c0f08" stroke-width="1" data-phase="set"/>
+            <path d="M -103.83 134.36 A 170 170 0 0 1 0 -170 L 0 0 Z" fill="url(#black)" stroke="#1c0f08" stroke-width="1" data-phase="black"/>
+            <!-- gilt center -->
+            <circle r="60" fill="#1c0f08" stroke="#a87b2e" stroke-width="1.5"/>
+            <circle r="55" fill="none" stroke="#a87b2e" stroke-width=".5" opacity=".6"/>
+            <!-- hand -->
+            <line id="hand" x1="0" y1="0" x2="0" y2="-160" stroke="#d4a44a" stroke-width="2"/>
+            <polygon id="handTip" points="0,-160 -4,-150 4,-150" fill="#d4a44a"/>
+            <circle r="6" fill="#a87b2e" stroke="#1c0f08" stroke-width="1"/>
+          </g>
+        </svg>
+        <div class="label">
+          <div class="phase" id="phaseName">Transition</div>
+          <div class="time" id="phaseTime">0 — 30 min</div>
+        </div>
+        <button class="play" id="play">▷  Wind</button>
+      </div>
+    </div>
+
+    <div class="phases-legend" id="legend">
+      <div class="leg" data-phase="black"><span class="swatch" style="background:#0a0604"></span><span class="name">Black Hour</span><div class="dur">20–30 min before sunrise</div><div class="effect">Undead at full capability. The world is still asleep.</div></div>
+      <div class="leg" data-phase="rise"><span class="swatch" style="background:#6a1814"></span><span class="name">Sunrise</span><div class="dur">5–10 min ascent</div><div class="effect">Rituals time to it. Soft transition.</div></div>
+      <div class="leg active" data-phase="trans"><span class="swatch" style="background:#a85a2e"></span><span class="name">Transition</span><div class="dur">0–30 min window</div><div class="effect">Formed retain full capability. Pacts settle. The dangerous half-hour.</div></div>
+      <div class="leg" data-phase="day"><span class="swatch" style="background:#d4a44a"></span><span class="name">Daylight</span><div class="dur">2–5 hr · by region</div><div class="effect">Sun harms Formed. Sun-Work permitted.</div></div>
+      <div class="leg" data-phase="set"><span class="swatch" style="background:#7a1a1f"></span><span class="name">Sunset</span><div class="dur">Under 1 min · the drop</div><div class="effect">Plans live and die in this window.</div></div>
+    </div>
+
+    <div class="section-h">Regional Variations</div>
+    <div class="regions">
+      <div class="region"><div class="name">Highland</div><div class="effect">Delay of 10–15 min before light reaches the valley floor.</div></div>
+      <div class="region"><div class="name">Forest Canopy</div><div class="effect">Daylight reduced by half; transition window functionally extended.</div></div>
+      <div class="region"><div class="name">Basin Fog</div><div class="effect">Direct sun rarely reaches ground. Vampyres operate freely.</div></div>
+      <div class="region"><div class="name">Snowfields</div><div class="effect">Zero-window seasons; the sun does not crest the horizon for weeks at a time.</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const phases = {
+    black:{name:'Black Hour', time:'20–30 min before sunrise', deg:-90},
+    rise:{name:'Sunrise', time:'5–10 min ascent', deg:14},
+    trans:{name:'Transition', time:'0–30 min window', deg:50},
+    day:{name:'Daylight', time:'2–5 hours', deg:130},
+    set:{name:'Sunset', time:'Under 1 min', deg:228}
+  };
+  const hand = document.getElementById('hand');
+  const tip = document.getElementById('handTip');
+  const pn = document.getElementById('phaseName');
+  const pt = document.getElementById('phaseTime');
+  const legs = document.querySelectorAll('.leg');
+  function setPhase(key){
+    const p = phases[key];
+    pn.textContent = p.name; pt.textContent = p.time;
+    hand.setAttribute('transform', `rotate(${p.deg})`);
+    tip.setAttribute('transform', `rotate(${p.deg})`);
+    legs.forEach(l => l.classList.toggle('active', l.dataset.phase===key));
+  }
+  legs.forEach(l => l.addEventListener('click', () => setPhase(l.dataset.phase)));
+  document.querySelectorAll('[data-phase]').forEach(p => {
+    if (p.tagName==='path') p.addEventListener('click', () => setPhase(p.dataset.phase));
+  });
+  let winding = false;
+  document.getElementById('play').addEventListener('click', () => {
+    if (winding) return; winding = true;
+    const order = ['black','rise','trans','day','set'];
+    let i = 0;
+    const step = () => {
+      setPhase(order[i]); i++;
+      if (i<order.length) setTimeout(step, 900);
+      else winding = false;
+    };
+    step();
+  });
+  setPhase('trans');
+</script>
+</body>
+</html>

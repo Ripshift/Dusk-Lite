@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dusk — Atlas Spread</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --vellum:#dec9a3;
+    --vellum-2:#c9b07e;
+    --shadow:#8c7445;
+    --ink:#1c0f08;
+    --ink-2:#3a2010;
+    --blood:#7a1a1f;
+    --blood-deep:#4a0a0c;
+    --blood-bright:#a02a26;
+    --rust:#7a4520;
+    --gilt:#a87b2e;
+    --gilt-bright:#d4a44a;
+    --gilt-deep:#6f4a14;
+  }
+  .gilt-foil{
+    background:linear-gradient(180deg,#8a5d1c 0%,#d9ad48 28%,#f0d480 48%,#b07f24 68%,#8a5d1c 100%);
+    background-clip:text;-webkit-background-clip:text;color:transparent;
+    filter:drop-shadow(0 1px 0 rgba(122,69,32,.35));
+  }
+  .gilt-rule{
+    height:2px;background:linear-gradient(90deg,transparent 0%,var(--gilt-deep) 10%,var(--gilt-bright) 50%,var(--gilt-deep) 90%,transparent 100%);
+    margin:14px 0;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#221610;font-family:"Cormorant Garamond","EB Garamond",Georgia,serif}
+  body{min-height:100vh;color:var(--ink);overflow-x:hidden}
+
+  /* outer plate */
+  .desk{
+    min-height:100vh;padding:40px;
+    background:
+      radial-gradient(ellipse at 20% 10%, rgba(0,0,0,.3), transparent 60%),
+      radial-gradient(ellipse at 80% 90%, rgba(0,0,0,.4), transparent 60%),
+      #1a100a;
+  }
+
+  /* SPREAD — two pages */
+  .spread{
+    max-width:1400px;margin:0 auto;
+    display:grid;grid-template-columns:1fr 1fr;
+    background:var(--vellum);
+    box-shadow:
+      0 30px 60px rgba(0,0,0,.6),
+      0 0 0 1px rgba(0,0,0,.4),
+      inset 0 0 80px rgba(140,116,69,.4);
+    position:relative;
+    min-height:880px;
+  }
+  /* inner gilt frame on the whole spread */
+  .spread-frame{
+    position:absolute;inset:18px;border:1.5px solid var(--gilt);pointer-events:none;z-index:4;
+  }
+  .spread-frame::before{content:"";position:absolute;inset:5px;border:.5px solid var(--gilt);opacity:.55}
+  .spread-frame .corner{position:absolute;width:36px;height:36px;color:var(--gilt)}
+  .spread-frame .corner.tl{top:-18px;left:-18px}
+  .spread-frame .corner.tr{top:-18px;right:-18px;transform:scaleX(-1)}
+  .spread-frame .corner.bl{bottom:-18px;left:-18px;transform:scaleY(-1)}
+  .spread-frame .corner.br{bottom:-18px;right:-18px;transform:scale(-1,-1)}
+  /* gutter shadow */
+  .spread::before{
+    content:"";position:absolute;left:50%;top:0;bottom:0;width:60px;transform:translateX(-50%);
+    background:linear-gradient(90deg, transparent, rgba(60,30,10,.4) 50%, transparent);
+    pointer-events:none;z-index:5;
+  }
+  /* paper texture */
+  .spread::after{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='420' height='420'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' seed='11'/><feColorMatrix values='0 0 0 0 0.25  0 0 0 0 0.13  0 0 0 0 0.05  0 0 0 0.16 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    mix-blend-mode:multiply;opacity:.7;
+  }
+  .page{
+    padding:48px 56px;position:relative;z-index:1;
+  }
+  .page.left{padding-right:40px}
+  .page.right{padding-left:40px;background:linear-gradient(90deg, rgba(140,80,40,.05), transparent 5%)}
+
+  /* foxing */
+  .stain{
+    position:absolute;border-radius:50%;mix-blend-mode:multiply;pointer-events:none;
+  }
+  .stain.s1{top:8%;left:8%;width:140px;height:80px;background:radial-gradient(ellipse,rgba(122,40,20,.22),transparent 70%)}
+  .stain.s2{bottom:12%;right:10%;width:200px;height:100px;background:radial-gradient(ellipse,rgba(74,10,12,.2),transparent 70%)}
+  .stain.s3{top:55%;left:15%;width:80px;height:50px;background:radial-gradient(ellipse,rgba(60,20,10,.18),transparent 70%)}
+
+  /* MASTHEAD on left page */
+  .nameplate{
+    text-align:center;padding-bottom:24px;border-bottom:2px solid var(--ink);
+    margin-bottom:24px;position:relative;
+  }
+  .nameplate::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:1px;background:var(--ink);opacity:.4}
+  .nameplate .top{
+    font-family:"IM Fell English SC",serif;font-size:11px;letter-spacing:.4em;
+    color:var(--rust);text-transform:uppercase;
+  }
+  .nameplate h1{
+    font-family:"IM Fell English",serif;font-weight:400;
+    font-size:96px;line-height:.85;margin:6px 0 0;letter-spacing:.02em;
+    background:linear-gradient(180deg,#8a5d1c 0%,#d9ad48 28%,#f0d480 48%,#b07f24 68%,#8a5d1c 100%);
+    background-clip:text;-webkit-background-clip:text;color:transparent;
+    filter:drop-shadow(0 1px 0 rgba(122,69,32,.4));
+  }
+  .nameplate .deck{
+    font-family:"IM Fell English",serif;font-style:italic;font-size:18px;color:var(--ink-2);margin-top:8px;
+  }
+
+  /* TAB STRIPS along outer edge — ribbon bookmarks */
+  .tabs{
+    position:absolute;left:-38px;top:60px;display:flex;flex-direction:column;gap:2px;z-index:6;
+  }
+  .tab{
+    background:linear-gradient(90deg, #b89865 0%, #c9b07e 70%, #dec9a3 100%);
+    border:1px solid var(--ink);border-right:none;
+    padding:14px 10px 14px 12px;writing-mode:vertical-rl;transform:rotate(180deg);
+    font-family:"IM Fell English SC",serif;font-size:10px;letter-spacing:.3em;
+    color:var(--ink-2);text-transform:uppercase;cursor:pointer;
+    transition:transform .25s ease, padding .25s ease, background .25s ease;
+    box-shadow:-4px 3px 8px rgba(0,0,0,.3), inset 1px 0 0 rgba(255,235,200,.25);
+    position:relative;
+  }
+  .tab::before{
+    /* notched tail */
+    content:"";position:absolute;left:-1px;top:-1px;bottom:-1px;width:6px;
+    background:linear-gradient(180deg, var(--vellum-2) 0%, var(--vellum-2) 50%, transparent 50%, transparent 60%, var(--vellum-2) 60%, var(--vellum-2) 100%);
+  }
+  .tab:hover{transform:translateX(-3px)}
+  .tab.active{
+    background:linear-gradient(90deg, var(--blood-deep) 0%, var(--blood) 60%, var(--blood-bright) 100%);
+    color:#f4e4c4;padding-left:18px;
+    border-color:var(--blood-deep);transform:translateX(-6px);
+    box-shadow:-6px 4px 12px rgba(74,10,12,.6), inset 1px 0 0 rgba(255,200,180,.25);
+  }
+  .tab .ord{font-family:"IM Fell English",serif;font-style:italic;display:block;font-size:10px;color:var(--gilt);margin-bottom:4px;letter-spacing:.1em}
+  .tab.active .ord{color:#f0d480}
+
+  /* PANELS */
+  .panel{display:none}
+  .panel.active{display:contents;animation:fade .5s ease-out}
+  @keyframes fade{from{opacity:0} to{opacity:1}}
+
+  /* RUNNING HEAD */
+  .running-head{
+    display:flex;justify-content:space-between;align-items:baseline;
+    font-family:"IM Fell English SC",serif;font-size:10px;letter-spacing:.3em;
+    color:var(--rust);text-transform:uppercase;margin-bottom:8px;
+  }
+  .running-head .num{font-family:"IM Fell English",serif;font-style:italic;font-size:14px;color:var(--ink-2);letter-spacing:0}
+
+  /* SECTION HEAD */
+  .sh{
+    margin-bottom:18px;
+  }
+  .sh h2{
+    font-family:"IM Fell English",serif;font-weight:400;
+    font-size:48px;line-height:.95;margin:0 0 4px;color:var(--ink);letter-spacing:.01em;
+  }
+  .sh .sub{font-family:"IM Fell English",serif;font-style:italic;font-size:14px;color:var(--ink-2)}
+
+  /* PROSE */
+  .prose p{
+    margin:0 0 12px;font-size:16px;line-height:1.55;text-align:justify;hyphens:auto;color:var(--ink);
+  }
+  .prose p:first-of-type::first-letter{
+    font-family:"IM Fell English",serif;float:left;font-size:72px;line-height:.78;
+    padding:8px 10px 0 0;
+    background:linear-gradient(180deg,#8a5d1c 0%,#d9ad48 28%,#f0d480 48%,#b07f24 68%,#8a5d1c 100%);
+    background-clip:text;-webkit-background-clip:text;color:transparent;
+    filter:drop-shadow(0 1px 0 rgba(122,69,32,.4));
+  }
+  .prose em{color:var(--blood-deep);font-style:italic}
+
+  /* MARGIN NOTE */
+  .margin{
+    font-family:"IM Fell English",serif;font-style:italic;
+    font-size:13px;line-height:1.4;color:var(--ink-2);
+    padding:8px 0 8px 12px;border-left:2px solid var(--blood);margin:10px 0;
+  }
+  .margin .who{display:block;font-family:"IM Fell English SC",serif;font-style:normal;font-size:9px;letter-spacing:.2em;color:var(--rust);margin-top:4px}
+
+  /* PLATE FRAME (right page art / device) */
+  .plate{
+    border:1.5px solid var(--ink);padding:18px;margin-bottom:14px;
+    background:rgba(58,32,16,.04);position:relative;
+  }
+  .plate::before{
+    content:"";position:absolute;inset:4px;border:.5px solid var(--ink);opacity:.5;pointer-events:none;
+  }
+  .plate-label{
+    font-family:"IM Fell English SC",serif;font-size:10px;letter-spacing:.3em;
+    color:var(--rust);text-transform:uppercase;text-align:center;margin-bottom:10px;
+  }
+  .plate-cap{
+    font-family:"IM Fell English",serif;font-style:italic;font-size:13px;color:var(--ink-2);
+    text-align:center;margin-top:10px;
+  }
+
+  /* MOON TRACKER inside plate */
+  .moon-row{display:grid;grid-template-columns:repeat(15,1fr);gap:5px;margin:8px 0 4px}
+  .moon{
+    aspect-ratio:1/1;border-radius:50%;cursor:pointer;
+    background:radial-gradient(circle at 35% 35%, #f0dba8 0%, #b89060 60%, #5a3815 100%);
+    box-shadow:inset -6px -2px 0 rgba(20,10,5,.55), 0 0 0 1px var(--ink);
+    transition:transform .2s;
+  }
+  .moon:hover{transform:scale(1.15);z-index:2}
+  .moon[data-phase="new"]{background:#0e0805;box-shadow:0 0 0 1px var(--ink)}
+  .moon[data-phase="waxing"]{background:linear-gradient(90deg, #0e0805 50%, #c9a878 50%);box-shadow:0 0 0 1px var(--ink)}
+  .moon[data-phase="full"]{
+    background:radial-gradient(circle at 35% 35%, #f4e4b8 0%, #c9a878 60%, #8a6230 100%);
+    box-shadow:0 0 12px rgba(218,180,120,.7), 0 0 0 1px var(--gilt);
+  }
+  .moon[data-phase="waning"]{background:linear-gradient(90deg, #c9a878 50%, #0e0805 50%);box-shadow:0 0 0 1px var(--ink)}
+  .moon.active{box-shadow:0 0 0 2px var(--blood),0 0 10px rgba(122,26,31,.6)}
+  .day-axis{display:grid;grid-template-columns:repeat(15,1fr);gap:5px;margin-top:2px}
+  .day-axis span{font-family:"IM Fell English",serif;font-style:italic;font-size:9px;color:var(--ink-2);text-align:center}
+
+  .tide-bar{
+    display:grid;grid-template-columns:repeat(6,1fr);height:32px;border:1px solid var(--ink);margin-top:14px;
+  }
+  .tide-stage{
+    display:flex;align-items:center;justify-content:center;
+    font-family:"IM Fell English SC",serif;font-size:11px;letter-spacing:.2em;color:var(--ink);
+    border-right:1px solid var(--ink);cursor:pointer;position:relative;
+  }
+  .tide-stage:last-child{border-right:none}
+  .tide-stage[data-level="6"]{background:rgba(58,20,10,.5);color:var(--vellum)}
+  .tide-stage[data-level="5"]{background:rgba(58,20,10,.38);color:var(--vellum)}
+  .tide-stage[data-level="3"]{background:rgba(58,20,10,.2)}
+  .tide-stage[data-level="1"]{background:rgba(58,20,10,.05)}
+  .tide-stage.active::after{content:"";position:absolute;inset:1px;border:1.5px solid var(--blood)}
+
+  .readout{
+    font-family:"IM Fell English",serif;font-style:italic;font-size:13px;line-height:1.5;
+    color:var(--ink-2);margin-top:10px;padding:8px 12px;background:rgba(122,26,31,.06);
+    border-left:2px solid var(--blood);
+  }
+  .readout b{font-family:"IM Fell English SC",serif;font-style:normal;font-size:10px;letter-spacing:.18em;color:var(--blood-deep)}
+
+  /* SUBSECTION */
+  .sub-h{
+    font-family:"IM Fell English",serif;font-weight:400;font-style:italic;
+    font-size:22px;margin:18px 0 6px;color:var(--ink);
+  }
+
+  /* INDEX list (themes / disciplines) */
+  .idx{margin:0;padding:0;list-style:none}
+  .idx li{
+    display:grid;grid-template-columns:24px 1fr;gap:10px;align-items:baseline;
+    padding:6px 0;border-bottom:1px dotted rgba(28,15,8,.4);font-size:14.5px;line-height:1.4;
+  }
+  .idx .n{font-family:"IM Fell English",serif;font-style:italic;color:var(--blood-dim);color:var(--blood);font-size:14px}
+  .idx .t{font-family:"IM Fell English",serif;font-size:17px;color:var(--ink)}
+  .idx .d{font-style:italic;color:var(--ink-2);font-size:13px}
+
+  /* CYCLE TABLE (mechanics) */
+  .cycle{
+    width:100%;border-collapse:collapse;margin:8px 0;
+  }
+  .cycle th, .cycle td{
+    text-align:left;padding:6px 8px;font-size:13.5px;line-height:1.4;vertical-align:top;
+    border-bottom:1px solid rgba(28,15,8,.35);
+  }
+  .cycle th{
+    font-family:"IM Fell English SC",serif;font-weight:400;font-size:10px;letter-spacing:.18em;
+    color:var(--rust);text-transform:uppercase;border-bottom:1.5px solid var(--ink);
+  }
+  .cycle td.label{font-family:"IM Fell English",serif;font-style:italic;color:var(--blood-deep);width:38%}
+
+  /* FACTION SEALS grid */
+  .seals{display:grid;grid-template-columns:repeat(2,1fr);gap:0}
+  .seal-card{
+    padding:14px 16px;border-right:1px solid var(--ink);border-bottom:1px solid var(--ink);
+    display:flex;gap:14px;align-items:flex-start;
+  }
+  .seal-card:nth-child(2n){border-right:none}
+  .seal-card:nth-last-child(-n+2){border-bottom:none}
+  .seal-card .icon{
+    width:44px;height:44px;flex:0 0 auto;color:var(--blood);
+    border:1px solid var(--ink);border-radius:50%;display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(circle, rgba(122,26,31,.08), transparent);
+  }
+  .seal-card h4{
+    font-family:"IM Fell English",serif;font-weight:400;font-size:18px;margin:0 0 2px;color:var(--ink);
+  }
+  .seal-card .tag{font-family:"IM Fell English SC",serif;font-size:9px;letter-spacing:.22em;color:var(--rust);text-transform:uppercase;margin-bottom:4px}
+  .seal-card p{margin:0;font-size:12.5px;line-height:1.45;color:var(--ink-2);font-style:italic}
+
+  /* CATECHISM */
+  .qa{margin:0;padding:0;list-style:none;counter-reset:q}
+  .qa li{
+    counter-increment:q;padding:10px 0;border-bottom:1px dotted rgba(28,15,8,.4);
+  }
+  .qa .q{
+    font-family:"IM Fell English",serif;font-style:italic;font-size:15px;color:var(--ink);
+    display:flex;gap:10px;
+  }
+  .qa .q::before{
+    content:counter(q, upper-roman) ".";
+    color:var(--blood);font-style:normal;min-width:30px;
+  }
+  .qa .a{margin:4px 0 0 40px;font-size:13px;line-height:1.5;color:var(--ink-2)}
+
+  /* CHECKLIST */
+  .check{list-style:none;padding:0;margin:0}
+  .check li{
+    display:flex;gap:10px;align-items:flex-start;padding:6px 0;
+    font-size:14px;cursor:pointer;border-bottom:1px dotted rgba(28,15,8,.3);
+  }
+  .check .box{
+    width:14px;height:14px;border:1px solid var(--ink);margin-top:3px;flex:0 0 auto;position:relative;
+  }
+  .check li.done .box::after{
+    content:"✕";position:absolute;inset:-4px 0 0 0;display:flex;align-items:center;justify-content:center;
+    color:var(--blood);font-family:"IM Fell English",serif;font-size:16px;
+  }
+  .check li.done{color:var(--shadow);text-decoration:line-through;text-decoration-color:var(--blood)}
+
+  /* FOLIO numbers */
+  .folio-num{
+    position:absolute;bottom:24px;font-family:"IM Fell English",serif;font-style:italic;font-size:12px;
+    color:var(--ink-2);
+  }
+  .folio-num.left{left:56px}
+  .folio-num.right{right:56px}
+
+  /* small ornamental drip */
+  .drip{
+    height:24px;margin:12px 0;position:relative;
+  }
+  .drip::before{
+    content:"";position:absolute;left:0;right:0;top:50%;height:1px;
+    background:linear-gradient(90deg, transparent, var(--gilt-deep) 20%, var(--gilt-bright) 50%, var(--gilt-deep) 80%, transparent);
+  }
+  .drip::after{
+    content:"❦";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    background:var(--vellum);padding:0 12px;color:var(--blood);font-size:16px;
+  }
+
+  /* WAX SEAL */
+  .wax-seal{
+    width:110px;height:110px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #c83a2e 0%, #8a1a1a 40%, #4a0608 80%, #2a0203 100%);
+    box-shadow:
+      inset -8px -10px 18px rgba(0,0,0,.5),
+      inset 6px 8px 12px rgba(220,80,60,.3),
+      0 4px 12px rgba(0,0,0,.4),
+      0 0 0 1px rgba(40,5,8,.6);
+    position:relative;display:flex;align-items:center;justify-content:center;
+  }
+  .wax-seal::before{
+    content:"";position:absolute;inset:0;border-radius:50%;
+    background:
+      radial-gradient(circle at 65% 70%, rgba(0,0,0,.35) 0%, transparent 50%),
+      radial-gradient(circle at 30% 25%, rgba(255,180,160,.18) 0%, transparent 35%);
+    pointer-events:none;
+  }
+  .wax-seal::after{
+    content:"";position:absolute;inset:-2px;border-radius:50%;z-index:-1;
+    background:
+      radial-gradient(circle at 80% 90%, #8a1a1a 0%, transparent 5%),
+      radial-gradient(circle at 20% 88%, #6a1410 0%, transparent 4%),
+      radial-gradient(circle at 50% 95%, #6a1410 0%, transparent 3%);
+    pointer-events:none;
+  }
+  .wax-seal svg{
+    width:62%;height:62%;color:#3a0608;
+    filter:drop-shadow(0 1px 0 rgba(40,5,8,.7)) drop-shadow(0 -1px 0 rgba(220,90,70,.3));
+  }
+  .colophon{
+    display:flex;flex-direction:column;align-items:center;gap:10px;
+    margin-top:28px;text-align:center;
+  }
+  .colophon .legend{
+    font-family:"IM Fell English SC",serif;font-size:9px;letter-spacing:.35em;
+    color:var(--rust);text-transform:uppercase;
+  }
+  .colophon .legend em{font-family:"IM Fell English",serif;font-style:italic;letter-spacing:.05em;color:var(--ink-2);text-transform:none;font-size:13px;display:block;margin-top:4px}
+
+  /* PRINT */
+  @media print{
+    @page{size:tabloid landscape;margin:0.4in}
+    html,body{background:#fff !important}
+    .desk{background:#fff !important;padding:0;min-height:auto}
+    .tabs{display:none !important}
+    .spread{box-shadow:none !important;max-width:100%;min-height:auto}
+    .panel{display:contents !important;page-break-after:always}
+    .panel:last-child{page-break-after:auto}
+    *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  }
+</style>
+</head>
+<body>
+
+<div class="desk">
+  <a href="../index.html" style="position:fixed;top:20px;left:20px;z-index:100;background:var(--vellum);color:var(--ink);font-family:'IM Fell English SC',serif;font-size:10px;letter-spacing:.25em;text-transform:uppercase;padding:8px 16px;text-decoration:none;border:1px solid var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.3)">← Handouts</a>
+
+  <div class="spread">
+    <div class="spread-frame">
+      <svg class="corner tl" viewBox="0 0 36 36"><path d="M3 18 Q3 3 18 3 M8 3 L8 9 M3 8 L9 8 M18 8 L24 8" stroke="currentColor" stroke-width="1" fill="none"/><circle cx="8" cy="8" r="1.6" fill="currentColor"/><path d="M3 18 Q3 12 8 11" stroke="currentColor" stroke-width=".5" fill="none" opacity=".6"/></svg>
+      <svg class="corner tr" viewBox="0 0 36 36"><path d="M3 18 Q3 3 18 3 M8 3 L8 9 M3 8 L9 8 M18 8 L24 8" stroke="currentColor" stroke-width="1" fill="none"/><circle cx="8" cy="8" r="1.6" fill="currentColor"/><path d="M3 18 Q3 12 8 11" stroke="currentColor" stroke-width=".5" fill="none" opacity=".6"/></svg>
+      <svg class="corner bl" viewBox="0 0 36 36"><path d="M3 18 Q3 3 18 3 M8 3 L8 9 M3 8 L9 8 M18 8 L24 8" stroke="currentColor" stroke-width="1" fill="none"/><circle cx="8" cy="8" r="1.6" fill="currentColor"/><path d="M3 18 Q3 12 8 11" stroke="currentColor" stroke-width=".5" fill="none" opacity=".6"/></svg>
+      <svg class="corner br" viewBox="0 0 36 36"><path d="M3 18 Q3 3 18 3 M8 3 L8 9 M3 8 L9 8 M18 8 L24 8" stroke="currentColor" stroke-width="1" fill="none"/><circle cx="8" cy="8" r="1.6" fill="currentColor"/><path d="M3 18 Q3 12 8 11" stroke="currentColor" stroke-width=".5" fill="none" opacity=".6"/></svg>
+    </div>
+
+    <!-- TAB STRIPS (left edge) -->
+    <div class="tabs" id="tabs">
+      <div class="tab active" data-panel="overview"><span class="ord">i</span>Overview</div>
+      <div class="tab" data-panel="themes"><span class="ord">ii</span>Themes</div>
+      <div class="tab" data-panel="mechanics"><span class="ord">iii</span>Mechanics</div>
+      <div class="tab" data-panel="moon"><span class="ord">iv</span>Moon &amp; Tide</div>
+      <div class="tab" data-panel="factions"><span class="ord">v</span>Factions</div>
+      <div class="tab" data-panel="questions"><span class="ord">vi</span>Catechism</div>
+      <div class="tab" data-panel="checklist"><span class="ord">vii</span>Checklist</div>
+    </div>
+
+    <!-- OVERVIEW PANEL -->
+    <div class="panel active" data-panel="overview">
+      <div class="page left">
+        <span class="stain s1"></span><span class="stain s3"></span>
+        <div class="nameplate">
+          <div class="top">Codex Crepuscula</div>
+          <h1>Dusk</h1>
+          <div class="deck">A Study of the Crepuscular World</div>
+        </div>
+        <div class="running-head"><span>Overview · Of the Insufficient Sun</span><span class="num">i</span></div>
+        <div class="sh"><h2>An Overview</h2><div class="sub">— that the reader may know what world they enter —</div></div>
+        <div class="prose">
+          <p>Dusk is a world that never fully woke up. The sun arrives as a promise it cannot keep — bleeding up from the horizon, holding for a few hours at a low and insufficient angle, then falling in less than a minute.</p>
+          <p>The people of Dusk have built entire civilizations around this insufficiency: their architecture accounts for it, their politics exploit it, their religion interprets it, and their predators depend on it.</p>
+        </div>
+        <div class="margin">
+          Three pillars uphold the setting: the <em>light clock</em>, <em>ledgered majic</em>, and <em>factional obligation</em>.
+          <span class="who">Marginal hand · c. 397</span>
+        </div>
+        <span class="folio-num left">iv.</span>
+      </div>
+
+      <div class="page right">
+        <span class="stain s2"></span>
+        <div class="running-head"><span class="num">i</span><span>The Long Argument</span></div>
+        <div class="sh" style="margin-top:64px"><h2 style="font-size:36px">The Long Argument</h2><div class="sub">— what was, what became, what remains —</div></div>
+        <div class="prose">
+          <p>The dominant racial power — the Drow — are not monsters. They are survivors of something monstrous. Their character is shaped by the specific grief of that transformation: a civilization that <em>was</em> something and <em>became</em> something else, and has been arguing about what it lost and what it gained ever since.</p>
+          <p>The Vampyres mourn what they lost when they Formed. Lycanthropes argue about whether <em>loss</em> is the right word. Into this argument, humans arrived — mundane, mortal, adaptable, and stubbornly unwilling to be peripheral.</p>
+        </div>
+
+        <div class="plate">
+          <div class="plate-label">Plate I · The Three Pillars</div>
+          <ul class="idx">
+            <li><span class="n">i.</span><span><span class="t">The Light Clock</span> <span class="d">— a weak sun, a brief window, a falling minute.</span></span></li>
+            <li><span class="n">ii.</span><span><span class="t">Ledgered Majic</span> <span class="d">— nothing is free; every working leaves a trace.</span></span></li>
+            <li><span class="n">iii.</span><span><span class="t">Factional Obligation</span> <span class="d">— survival is political; affiliation is a leash.</span></span></li>
+          </ul>
+          <div class="plate-cap">— after Aldra, Pale-Scribe of the Second Court —</div>
+        </div>
+        <span class="folio-num right">v.</span>
+      </div>
+    </div>
+
+    <!-- THEMES PANEL -->
+    <div class="panel" data-panel="themes">
+      <div class="page left">
+        <span class="stain s1"></span>
+        <div class="running-head"><span>Themes · The Six Currents</span><span class="num">ii</span></div>
+        <div class="sh"><h2>Themes</h2><div class="sub">— upon which the campaign turns —</div></div>
+        <ul class="idx">
+          <li><span class="n">i.</span><span><span class="t">Gothic Intimacy</span> <span class="d">— horror is personal; the monster is the cousin who returned changed.</span></span></li>
+          <li><span class="n">ii.</span><span><span class="t">Political Horror</span> <span class="d">— survival is political; whose door opens, whose blade is sheathed.</span></span></li>
+          <li><span class="n">iii.</span><span><span class="t">Ritual &amp; Obligation</span> <span class="d">— deals are binding; spirits enforce promises.</span></span></li>
+          <li><span class="n">iv.</span><span><span class="t">The Cost of Purity</span> <span class="d">— the Forming's grief shapes Drow society.</span></span></li>
+          <li><span class="n">v.</span><span><span class="t">Form Over Blood</span> <span class="d">— what you became eclipses what you were born.</span></span></li>
+          <li><span class="n">vi.</span><span><span class="t">The Empty Maw</span> <span class="d">— absence as ontological threat.</span></span></li>
+        </ul>
+        <span class="folio-num left">vi.</span>
+      </div>
+      <div class="page right">
+        <span class="stain s2"></span>
+        <div class="running-head"><span class="num">ii</span><span>World History</span></div>
+        <div class="sh"><h2 style="font-size:36px">World History</h2><div class="sub">— eras and their bearing on the present —</div></div>
+        <table class="cycle">
+          <thead><tr><th>Era</th><th>Bearing</th></tr></thead>
+          <tbody>
+            <tr><td class="label">Pale-Elf Period</td><td>Surface-oriented; first demon-contact points; original sin of the contract.</td></tr>
+            <tr><td class="label">Interregnum</td><td>Post-blight chaos; the Long Argument established present factional shapes.</td></tr>
+            <tr><td class="label">Current Age</td><td>Four centuries of brittle stability; the Unraveling cracks it now.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="drip"></div>
+
+        <div class="sub-h">The Empty Maw</div>
+        <div class="prose">
+          <p>Absence as ontological threat. <em>Fractures</em> manifest as glossed voids, blank hours, misfit maps. Psychic echoes follow those who linger too long at the edge. No faction admits to studying the Maw; every faction has someone who does.</p>
+        </div>
+        <span class="folio-num right">vii.</span>
+      </div>
+    </div>
+
+    <!-- MECHANICS PANEL -->
+    <div class="panel" data-panel="mechanics">
+      <div class="page left">
+        <span class="stain s3"></span>
+        <div class="running-head"><span>Mechanics · The Light Cycle</span><span class="num">iii</span></div>
+        <div class="sh"><h2>Mechanics</h2><div class="sub">— at the table, by the candle —</div></div>
+
+        <div class="sub-h">Of the Light Cycle</div>
+        <table class="cycle">
+          <thead><tr><th>Phase</th><th>Bearing</th></tr></thead>
+          <tbody>
+            <tr><td class="label">Black Hour</td><td>20–30 min before sunrise. Undead at full capability.</td></tr>
+            <tr><td class="label">Sunrise</td><td>5–10 min ascent. Rituals time to it.</td></tr>
+            <tr><td class="label">Transition Window</td><td>0–30 min. Formed retain capability. Pacts settle.</td></tr>
+            <tr><td class="label">Daylight</td><td>2–5 hr by season &amp; region.</td></tr>
+            <tr><td class="label">Sunset</td><td>Less than one minute. The drop.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="margin">All majic obeys the <em>Transactional Principle</em>: the ledger must balance. What is taken leaves a Spirit-Scar; what is hidden compounds.</div>
+        <span class="folio-num left">viii.</span>
+      </div>
+      <div class="page right">
+        <div class="running-head"><span class="num">iii</span><span>The Five Disciplines</span></div>
+        <div class="sh"><h2 style="font-size:36px">Five Disciplines</h2><div class="sub">— the working of majic —</div></div>
+        <ul class="idx">
+          <li><span class="n">i.</span><span><span class="t">Bloodcraft</span> <span class="d">— ledger &amp; pool; Mass Read, Red-Iron Blade.</span></span></li>
+          <li><span class="n">ii.</span><span><span class="t">Spirit-Binding</span> <span class="d">— negotiation; emergency binding; Scars.</span></span></li>
+          <li><span class="n">iii.</span><span><span class="t">Pactcraft</span> <span class="d">— demonic investments; compounding cost.</span></span></li>
+          <li><span class="n">iv.</span><span><span class="t">Forming</span> <span class="d">— thresholds; deliberate vs. involuntary.</span></span></li>
+          <li><span class="n">v.</span><span><span class="t">Sun-Work</span> <span class="d">— within the window only; draws demonic attention.</span></span></li>
+        </ul>
+
+        <div class="sub-h">Economy &amp; Currency</div>
+        <table class="cycle">
+          <tbody>
+            <tr><td class="label">Copper</td><td>Everyday. Worn thin in every market.</td></tr>
+            <tr><td class="label">Silver Marks</td><td>Autonomy. Stamped with house sigils.</td></tr>
+            <tr><td class="label">Bloodmarks</td><td>Covens. Each a sealed drop. Heavy ledger trace.</td></tr>
+            <tr><td class="label">Guild Tallies</td><td>Free State. Notched wood; redeemed at any guild post.</td></tr>
+          </tbody>
+        </table>
+        <span class="folio-num right">ix.</span>
+      </div>
+    </div>
+
+    <!-- MOON & TIDE PANEL -->
+    <div class="panel" data-panel="moon">
+      <div class="page left">
+        <span class="stain s1"></span>
+        <div class="running-head"><span>Moon &amp; Tide · The Reckoning</span><span class="num">iv</span></div>
+        <div class="sh"><h2>The Reckoning</h2><div class="sub">— click any day to set the world —</div></div>
+
+        <div class="plate">
+          <div class="plate-label">Plate II · Lunar Cycle · Days I—XV</div>
+          <div class="moon-row" id="moonRow"></div>
+          <div class="day-axis" id="dayAxis"></div>
+          <div class="plate-cap">Full Moon on Day VIII. Pack-Rebirth peaks.</div>
+        </div>
+
+        <div class="plate">
+          <div class="plate-label">Plate III · Tidal Month · Six Stages</div>
+          <div class="tide-bar" id="tideBar">
+            <div class="tide-stage" data-stage="A" data-level="6">A</div>
+            <div class="tide-stage" data-stage="B" data-level="5">B</div>
+            <div class="tide-stage" data-stage="C" data-level="3">C</div>
+            <div class="tide-stage" data-stage="D" data-level="1">D</div>
+            <div class="tide-stage" data-stage="E" data-level="3">E</div>
+            <div class="tide-stage" data-stage="F" data-level="5">F</div>
+          </div>
+          <div class="plate-cap">Stage A coincides with Full Moon. Alignment at the peaks.</div>
+        </div>
+        <span class="folio-num left">x.</span>
+      </div>
+      <div class="page right">
+        <span class="stain s2"></span>
+        <div class="running-head"><span class="num">iv</span><span>Readout &amp; Effects</span></div>
+        <div class="sh"><h2 style="font-size:36px">Readout</h2><div class="sub">— what the day yields —</div></div>
+
+        <div class="readout" id="readout">
+          On <b>Day VIII · Full Moon · Stage A</b>: the Packs run loud and full; Coven blood-archives sing; coastal settlements stand to the waterline. Pack-Rebirth and Pale-Remembrance both peak. All Pack rolls at advantage; all stealth at disadvantage.
+        </div>
+
+        <div class="sub-h">Effects by Stage</div>
+        <ul class="idx">
+          <li><span class="n">A</span><span><span class="t">Alignment</span> <span class="d">— Pack &amp; Coven peak. Advantage on supernatural rolls; disadvantage on stealth.</span></span></li>
+          <li><span class="n">B</span><span><span class="t">Ebbing High</span> <span class="d">— cohesion strong but fraying. Web operations easier dockside.</span></span></li>
+          <li><span class="n">C</span><span><span class="t">Slack</span> <span class="d">— good for parley; bad for ambush.</span></span></li>
+          <li><span class="n">D</span><span><span class="t">Low</span> <span class="d">— cellars exposed; smugglers move; Coven appetite low.</span></span></li>
+          <li><span class="n">E</span><span><span class="t">Returning</span> <span class="d">— spirits restless; shamans charge twice.</span></span></li>
+          <li><span class="n">F</span><span><span class="t">Approach</span> <span class="d">— tension everywhere; invitations in red wax.</span></span></li>
+        </ul>
+        <span class="folio-num right">xi.</span>
+      </div>
+    </div>
+
+    <!-- FACTIONS PANEL -->
+    <div class="panel" data-panel="factions">
+      <div class="page left">
+        <div class="running-head"><span>Of the Powers · I</span><span class="num">v</span></div>
+        <div class="sh"><h2>Of the Powers</h2><div class="sub">— each by a different throat —</div></div>
+        <div class="seals" style="border-top:1px solid var(--ink);border-left:1px solid var(--ink)">
+          <div class="seal-card">
+            <span class="icon"><svg viewBox="0 0 40 40" width="28" height="28"><circle cx="20" cy="20" r="16" stroke="currentColor" fill="none" stroke-width="1"/><path d="M20 4 L20 36 M4 20 L36 20" stroke="currentColor" stroke-width=".7"/><circle cx="20" cy="20" r="5" fill="currentColor"/></svg></span>
+            <div><h4>Drow Autonomy</h4><div class="tag">Lineage · Law</div><p>Inquisition &amp; Web intelligence. The argument that became a state.</p></div>
+          </div>
+          <div class="seal-card">
+            <span class="icon"><svg viewBox="0 0 40 40" width="28" height="28"><path d="M20 4 Q8 18 20 36 Q32 18 20 4 Z" stroke="currentColor" fill="none" stroke-width="1"/><circle cx="20" cy="20" r="3" fill="currentColor"/></svg></span>
+            <div><h4>The Covens</h4><div class="tag">Vampyre Houses</div><p>Pale-Remembrance keeps the long ledger. A Coven debt outlives its debtor.</p></div>
+          </div>
+          <div class="seal-card">
+            <span class="icon"><svg viewBox="0 0 40 40" width="28" height="28"><circle cx="20" cy="22" r="13" stroke="currentColor" fill="none" stroke-width="1"/><path d="M13 14 L9 6 M27 14 L31 6 M14 28 L20 32 L26 28" stroke="currentColor" fill="none" stroke-width="1"/></svg></span>
+            <div><h4>The Packs</h4><div class="tag">Hunt Courts</div><p>Pack-Rebirth. Fenhold runs by their teeth. The moon is their loudest court.</p></div>
+          </div>
+          <div class="seal-card">
+            <span class="icon"><svg viewBox="0 0 40 40" width="28" height="28"><rect x="6" y="14" width="28" height="16" stroke="currentColor" fill="none" stroke-width="1"/><path d="M6 14 L20 4 L34 14" stroke="currentColor" fill="none" stroke-width="1"/><line x1="20" y1="14" x2="20" y2="30" stroke="currentColor" stroke-width=".7"/></svg></span>
+            <div><h4>The Free State</h4><div class="tag">Guild Tallies</div><p>Mercantile Haven. The road every predator must use.</p></div>
+          </div>
+        </div>
+        <span class="folio-num left">xii.</span>
+      </div>
+      <div class="page right">
+        <span class="stain s2"></span>
+        <div class="running-head"><span class="num">v</span><span>Of the Powers · II</span></div>
+        <div class="sh"><h2 style="font-size:36px">— continued —</h2><div class="sub">the unseen, the indebted</div></div>
+        <div class="seals" style="border-top:1px solid var(--ink);border-left:1px solid var(--ink)">
+          <div class="seal-card">
+            <span class="icon"><svg viewBox="0 0 40 40" width="28" height="28"><circle cx="20" cy="20" r="3" fill="currentColor"/><circle cx="20" cy="20" r="9" stroke="currentColor" fill="none" stroke-width=".7"/><circle cx="20" cy="20" r="15" stroke="currentColor" fill="none" stroke-width=".5"/><path d="M20 5 L20 35 M5 20 L35 20 M9 9 L31 31 M31 9 L9 31" stroke="currentColor" stroke-width=".4"/></svg></span>
+            <div><h4>The Web</h4><div class="tag">Memory-Binding</div><p>Knows what you forgot you said. Exists in margins of others' ledgers.</p></div>
+          </div>
+          <div class="seal-card">
+            <span class="icon"><svg viewBox="0 0 40 40" width="28" height="28"><path d="M20 4 L28 18 L20 32 L12 18 Z" stroke="currentColor" fill="none" stroke-width="1"/><circle cx="20" cy="18" r="2" fill="currentColor"/><path d="M8 36 Q20 28 32 36" stroke="currentColor" fill="none" stroke-width=".8"/></svg></span>
+            <div><h4>Hidden Circle</h4><div class="tag">Demonic Investments</div><p>The bargain that compounds. The cause of the Unraveling.</p></div>
+          </div>
+          <div class="seal-card">
+            <span class="icon"><svg viewBox="0 0 40 40" width="28" height="28"><circle cx="20" cy="20" r="4" fill="currentColor"/><path d="M20 4 L20 12 M20 28 L20 36 M4 20 L12 20 M28 20 L36 20 M9 9 L14 14 M26 26 L31 31 M31 9 L26 14 M14 26 L9 31" stroke="currentColor" stroke-width=".8"/></svg></span>
+            <div><h4>Shamans</h4><div class="tag">Neutrality Imperative</div><p>Cross-faction access. Rites of birth, death, Forming, hunt-blessing.</p></div>
+          </div>
+          <div class="seal-card">
+            <span class="icon"><svg viewBox="0 0 40 40" width="28" height="28"><path d="M8 30 L20 12 L32 30 Z" stroke="currentColor" fill="none" stroke-width="1"/><circle cx="20" cy="24" r="2" fill="currentColor"/><path d="M14 30 L26 30" stroke="currentColor" stroke-width=".7"/></svg></span>
+            <div><h4>Independent Houses</h4><div class="tag">Minor Powers</div><p>The free shamans, hill-clans, river-mills — leverage in small but vital amounts.</p></div>
+          </div>
+        </div>
+        <span class="folio-num right">xiii.</span>
+      </div>
+    </div>
+
+    <!-- CATECHISM PANEL -->
+    <div class="panel" data-panel="questions">
+      <div class="page left">
+        <span class="stain s1"></span>
+        <div class="running-head"><span>Catechism · I</span><span class="num">vi</span></div>
+        <div class="sh"><h2>A Catechism</h2><div class="sub">— for the student of the world —</div></div>
+        <ol class="qa">
+          <li><div class="q">What does the thirty-minute weak-light window do for Vampyres?</div><div class="a">They retain full Formed capabilities; sunlight grows harmful only after the window has passed.</div></li>
+          <li><div class="q">Name three currencies and the factions that mint them.</div><div class="a">Copper (everyday), Silver Marks (Autonomy), Bloodmarks (Covens), Guild Tallies (Free State).</div></li>
+          <li><div class="q">What befalls a Drow who Forms?</div><div class="a">The Severing Night — loss of lineage status. They become kin to what they were taught to fear.</div></li>
+          <li><div class="q">How does Bloodcraft drive narrative?</div><div class="a">It leaves readable traces that fuel political leverage.</div></li>
+        </ol>
+        <span class="folio-num left">xiv.</span>
+      </div>
+      <div class="page right">
+        <div class="running-head"><span class="num">vi</span><span>Catechism · II</span></div>
+        <div class="sh"><h2 style="font-size:36px">— continued —</h2><div class="sub"></div></div>
+        <ol class="qa" start="5">
+          <li><div class="q">What triggers the Unraveling?</div><div class="a">Hidden Circle bargains coming due. Spiritual and political collapse, alike.</div></li>
+          <li><div class="q">Describe the spiritual hierarchy.</div><div class="a">Living → Ancestor Spirits → Nature Spirits → Spirit Guides → Angels.</div></li>
+          <li><div class="q">Name the five disciplines of majic.</div><div class="a">Bloodcraft, Spirit-Binding, Pactcraft, Forming, Sun-Work.</div></li>
+          <li><div class="q">How does the Empty Maw manifest?</div><div class="a">Fractures: glossed voids, blank hours, misfit maps; psychic echoes.</div></li>
+          <li><div class="q">Name the major cities.</div><div class="a">Blackstone (Autonomy), Fenhold (Pack), Marrowgate (Coven/Web), Mercantile Haven (Free State), Sable Port (Coven).</div></li>
+          <li><div class="q">What is the moon's significance?</div><div class="a">Ice-blue, tidal heating, ancestor presence; cycles drive Pack &amp; Coven rhythm.</div></li>
+        </ol>
+        <span class="folio-num right">xv.</span>
+      </div>
+    </div>
+
+    <!-- CHECKLIST PANEL -->
+    <div class="panel" data-panel="checklist">
+      <div class="page left">
+        <span class="stain s3"></span>
+        <div class="running-head"><span>Checklist · The Study</span><span class="num">vii</span></div>
+        <div class="sh"><h2>The Study</h2><div class="sub">— the reader's own ledger —</div></div>
+
+        <ul class="check" id="check">
+          <li><span class="box"></span>Memorise the weak-light window &amp; regional variations.</li>
+          <li><span class="box"></span>Learn lunar and tidal cycles, &amp; the peak-alignment.</li>
+          <li><span class="box"></span>Understand Forming &amp; its racial implications.</li>
+          <li><span class="box"></span>Review the five majic disciplines.</li>
+          <li><span class="box"></span>Know the factions and the lines between them.</li>
+          <li><span class="box"></span>Master economy: currencies, formulae, trade.</li>
+        </ul>
+        <span class="folio-num left">xvi.</span>
+      </div>
+      <div class="page right">
+        <div class="running-head"><span class="num">vii</span><span>— continued —</span></div>
+        <div class="sh"><h2 style="font-size:36px">— and further —</h2><div class="sub">the longer ledger</div></div>
+        <ul class="check" id="check2">
+          <li><span class="box"></span>Study settlements city by city, town by town.</li>
+          <li><span class="box"></span>Grasp the spiritual hierarchy &amp; shaman's neutrality.</li>
+          <li><span class="box"></span>Understand the Empty Maw &amp; its fractures.</li>
+          <li><span class="box"></span>Review world: planet, climate, history, cosmology.</li>
+          <li><span class="box"></span>Memorise the Transactional Principle.</li>
+          <li><span class="box"></span>Map the Hidden Circle's outstanding investments.</li>
+        </ul>
+
+        <div class="colophon">
+          <div class="wax-seal">
+            <svg viewBox="0 0 60 60">
+              <circle cx="30" cy="30" r="26" fill="none" stroke="currentColor" stroke-width="1"/>
+              <polygon points="30,10 50,46 10,46" fill="none" stroke="currentColor" stroke-width="1.2"/>
+              <circle cx="30" cy="32" r="4" fill="currentColor"/>
+              <path d="M30 14 L30 24 M16 42 L24 38 M44 42 L36 38" stroke="currentColor" stroke-width=".8"/>
+            </svg>
+          </div>
+          <div class="legend">Sealed by the Reader
+            <em>— a study completed is a debt collected —</em>
+          </div>
+        </div>
+        <span class="folio-num right">xvii.</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // TABS
+  const tabs = document.querySelectorAll('.tab');
+  const panels = document.querySelectorAll('.panel');
+  tabs.forEach(t => t.addEventListener('click', () => {
+    const id = t.dataset.panel;
+    tabs.forEach(x => x.classList.toggle('active', x===t));
+    panels.forEach(p => p.classList.toggle('active', p.dataset.panel===id));
+  }));
+
+  // MOON
+  const phases = ['new','waxing','waxing','waxing','waxing','waxing','waxing','full','waning','waning','waning','waning','waning','waning','new'];
+  const roman = ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV'];
+  const mr = document.getElementById('moonRow');
+  const da = document.getElementById('dayAxis');
+  for (let i=0;i<15;i++){
+    const m = document.createElement('div');m.className='moon';m.dataset.phase=phases[i];m.dataset.day=i;
+    m.addEventListener('click',()=>setDay(i));mr.appendChild(m);
+    const s=document.createElement('span');s.textContent=roman[i];da.appendChild(s);
+  }
+  const stages = document.querySelectorAll('.tide-stage');
+  const dayToStage = d => ['D','E','E','E','F','F','F','A','A','A','B','B','B','C','C'][d];
+  const tideText = {
+    A: 'the Packs run loud and full; Coven blood-archives sing; coastal settlements stand to the waterline. Pack-Rebirth and Pale-Remembrance both peak. All Pack rolls at advantage; all stealth at disadvantage.',
+    B: 'high tide ebbing. Pack cohesion strong but fraying. Web operations easier in dockside districts.',
+    C: 'slack. The world\'s pulse quiets. A good day to negotiate; a bad day to ambush.',
+    D: 'low tide. Coastal cellars exposed. Smugglers move. Coven appetite low.',
+    E: 'tide returning. Spirits restless. Shamans charge fees twice over.',
+    F: 'approach to alignment. Tension everywhere; Packs gather; Covens send invitations sealed in red.'
+  };
+  const readout = document.getElementById('readout');
+  function setDay(i){
+    document.querySelectorAll('.moon').forEach((m,j)=>m.classList.toggle('active', j===i));
+    const stage = dayToStage(i);
+    stages.forEach(s=>s.classList.toggle('active', s.dataset.stage===stage));
+    const phaseName = phases[i]==='new'?'New Moon':phases[i]==='full'?'Full Moon':phases[i]==='waxing'?'Waxing':'Waning';
+    readout.innerHTML = `On <b>Day ${roman[i]} · ${phaseName} · Stage ${stage}</b>: ${tideText[stage]}`;
+  }
+  stages.forEach(s => s.addEventListener('click', () => {
+    const st = s.dataset.stage;
+    for(let i=0;i<15;i++) if(dayToStage(i)===st){setDay(i);break;}
+  }));
+  setDay(7);
+
+  // CHECKLIST
+  document.querySelectorAll('#check li, #check2 li').forEach(li => {
+    li.addEventListener('click', () => li.classList.toggle('done'));
+  });
+</script>
+
+</body>
+</html>
