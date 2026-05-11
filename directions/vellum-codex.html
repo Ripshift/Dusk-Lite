@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dusk — Vellum Codex</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --vellum:#e9dcbd;
+    --vellum-2:#d8c89f;
+    --vellum-shadow:#b8a378;
+    --ink:#231510;
+    --ink-2:#3a241a;
+    --blood:#7a1a1f;
+    --blood-deep:#4a0d10;
+    --rust:#8c4a2a;
+    --bone:#f4ecd6;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:"EB Garamond","Cormorant Garamond",Georgia,serif;
+    color:var(--ink);
+    background:
+      radial-gradient(ellipse at 20% 10%, rgba(0,0,0,.18), transparent 55%),
+      radial-gradient(ellipse at 80% 90%, rgba(74,13,16,.22), transparent 60%),
+      radial-gradient(circle at 50% 50%, var(--vellum) 0%, var(--vellum-2) 70%, var(--vellum-shadow) 100%);
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  /* paper texture: layered noise via SVG data uri */
+  body::before{
+    content:"";
+    position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='3'/><feColorMatrix values='0 0 0 0 0.2  0 0 0 0 0.1  0 0 0 0 0.05  0 0 0 0.18 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    mix-blend-mode:multiply;opacity:.55;
+  }
+  /* foxing stains */
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(ellipse 180px 80px at 12% 22%, rgba(122,40,20,.18), transparent 70%),
+      radial-gradient(ellipse 240px 120px at 88% 68%, rgba(90,30,15,.16), transparent 70%),
+      radial-gradient(ellipse 120px 60px at 70% 15%, rgba(60,30,10,.14), transparent 70%),
+      radial-gradient(ellipse 200px 100px at 30% 85%, rgba(74,13,16,.18), transparent 70%);
+    mix-blend-mode:multiply;
+  }
+  .page{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:48px 56px 80px;}
+
+  /* MASTHEAD */
+  .masthead{
+    display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:32px;
+    padding-bottom:24px;border-bottom:1.5px solid var(--ink);
+    position:relative;
+  }
+  .masthead::after{
+    content:"";position:absolute;left:0;right:0;bottom:-6px;height:1px;background:var(--ink);opacity:.4;
+  }
+  .folio{
+    font-family:"IM Fell English SC",serif;font-size:13px;letter-spacing:.18em;
+    color:var(--ink-2);text-transform:uppercase;
+  }
+  .folio.right{text-align:right}
+  .title-block{text-align:center}
+  .title-block h1{
+    font-family:"IM Fell English",serif;
+    font-size:88px;line-height:.9;margin:0;letter-spacing:.02em;font-weight:400;
+    color:var(--ink);
+    text-shadow:0 1px 0 rgba(255,255,255,.2);
+  }
+  .title-block .sub{
+    font-family:"IM Fell English SC",serif;
+    font-size:14px;letter-spacing:.4em;color:var(--blood-deep);margin-top:10px;
+  }
+  .sigil{width:48px;height:48px;display:inline-block;vertical-align:middle;margin:0 14px;opacity:.85}
+
+  /* TAB NAV */
+  .tabs{
+    display:flex;flex-wrap:wrap;gap:0;margin:28px 0 0;
+    border-bottom:1px solid var(--ink);
+  }
+  .tab{
+    font-family:"IM Fell English SC",serif;
+    font-size:13px;letter-spacing:.22em;text-transform:uppercase;
+    padding:14px 22px;cursor:pointer;color:var(--ink-2);
+    border:1px solid transparent;border-bottom:none;
+    position:relative;background:transparent;
+    transition:color .2s,background .2s;
+    user-select:none;
+  }
+  .tab:hover{color:var(--blood)}
+  .tab.active{
+    color:var(--ink);
+    background:linear-gradient(180deg, rgba(244,236,214,.5), rgba(244,236,214,0));
+    border-color:var(--ink);
+  }
+  .tab.active::after{
+    content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--vellum);
+  }
+  .tab .ord{
+    font-family:"IM Fell English",serif;
+    font-size:10px;display:block;margin-bottom:2px;color:var(--rust);letter-spacing:.1em;
+  }
+
+  /* CONTENT WRAPPER */
+  main{margin-top:36px}
+  .panel{display:none}
+  .panel.active{display:block;animation:fade .5s ease-out}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none}}
+
+  /* SECTION HEADER */
+  .section-head{
+    display:grid;grid-template-columns:auto 1fr auto;align-items:end;gap:24px;
+    margin-bottom:20px;padding-bottom:8px;border-bottom:1px solid var(--ink);
+  }
+  .section-head h2{
+    font-family:"IM Fell English",serif;
+    font-size:54px;margin:0;font-weight:400;line-height:.95;color:var(--ink);
+  }
+  .section-head .chapter{
+    font-family:"IM Fell English SC",serif;font-size:12px;letter-spacing:.3em;color:var(--rust);
+  }
+  .section-head .running{
+    font-family:"IM Fell English",serif;font-style:italic;font-size:14px;color:var(--ink-2);
+  }
+
+  /* TWO COLUMN LAYOUT */
+  .cols{column-count:2;column-gap:48px;column-rule:1px solid rgba(35,21,16,.25)}
+  .cols p,.cols ul{break-inside:avoid-column}
+  .cols p{margin:0 0 14px;font-size:16.5px;line-height:1.55;text-align:justify;hyphens:auto}
+  .cols p:first-of-type::first-letter{
+    font-family:"IM Fell English",serif;
+    float:left;font-size:74px;line-height:.85;padding:6px 10px 0 0;
+    color:var(--blood);font-weight:400;
+  }
+
+  /* MARGINALIA */
+  .marginalia{
+    font-family:"IM Fell English",serif;font-style:italic;font-size:13.5px;
+    color:var(--ink-2);line-height:1.4;padding:8px 0 8px 14px;
+    border-left:2px solid var(--blood);margin:10px 0;
+    break-inside:avoid-column;
+  }
+  .marginalia .who{display:block;font-style:normal;font-family:"IM Fell English SC",serif;font-size:10px;letter-spacing:.2em;color:var(--rust);margin-top:6px}
+
+  /* PULL QUOTE */
+  .pullquote{
+    font-family:"IM Fell English",serif;font-style:italic;
+    font-size:22px;line-height:1.3;text-align:center;
+    margin:24px 32px;padding:18px 0;
+    border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);
+    color:var(--ink);position:relative;
+  }
+  .pullquote::before,.pullquote::after{
+    content:"❦";display:block;color:var(--blood);font-size:14px;margin:4px 0;
+  }
+
+  /* GRID OF GLOSSARY CARDS */
+  .glossary{
+    display:grid;grid-template-columns:repeat(2,1fr);gap:0;
+    margin-top:20px;
+  }
+  .gloss{
+    padding:16px 22px;border-right:1px dashed rgba(35,21,16,.4);border-bottom:1px dashed rgba(35,21,16,.4);
+  }
+  .gloss:nth-child(2n){border-right:none}
+  .gloss h4{
+    font-family:"IM Fell English SC",serif;font-size:14px;letter-spacing:.18em;
+    margin:0 0 8px;color:var(--blood-deep);
+  }
+  .gloss p{margin:0;font-size:15px;line-height:1.5}
+
+  /* MECHANIC TABLE */
+  .table{
+    width:100%;border-collapse:collapse;margin:18px 0;
+    font-size:15px;
+  }
+  .table th, .table td{
+    text-align:left;padding:8px 12px;border-bottom:1px solid rgba(35,21,16,.35);
+    vertical-align:top;
+  }
+  .table th{
+    font-family:"IM Fell English SC",serif;font-weight:400;letter-spacing:.15em;
+    font-size:11px;color:var(--rust);text-transform:uppercase;
+    border-bottom:1.5px solid var(--ink);
+  }
+  .table td.label{font-family:"IM Fell English",serif;font-style:italic;color:var(--blood-deep);width:30%}
+
+  /* MOON TRACKER */
+  .tracker{
+    margin-top:32px;padding:28px 32px;border:1px solid var(--ink);
+    background:linear-gradient(180deg, rgba(58,36,26,.05), rgba(58,36,26,0));
+    position:relative;
+  }
+  .tracker::before{
+    content:"DEVICE THE FIRST";
+    position:absolute;top:-9px;left:24px;background:var(--vellum-2);padding:0 10px;
+    font-family:"IM Fell English SC",serif;font-size:11px;letter-spacing:.3em;color:var(--ink-2);
+  }
+  .tracker h3{
+    font-family:"IM Fell English",serif;font-size:34px;margin:0 0 6px;font-weight:400;
+  }
+  .tracker .lede{font-style:italic;color:var(--ink-2);margin:0 0 24px;font-size:15px}
+  .moon-row{
+    display:grid;grid-template-columns:repeat(15,1fr);gap:6px;align-items:end;margin-bottom:16px;
+  }
+  .moon{
+    aspect-ratio:1/1;border-radius:50%;
+    background:radial-gradient(circle at 35% 35%, #f4ecd6 0%, #b89d6a 60%, #5a3a20 100%);
+    box-shadow:inset -8px -4px 0 rgba(20,10,5,.55), 0 2px 4px rgba(0,0,0,.2);
+    position:relative;cursor:pointer;transition:transform .2s;
+  }
+  .moon:hover{transform:scale(1.15);z-index:2}
+  .moon[data-phase="new"]{background:#1a0e08;box-shadow:inset 2px 2px 0 rgba(80,50,30,.4), 0 0 0 1px var(--ink)}
+  .moon[data-phase="waxing"]{background:linear-gradient(90deg, #1a0e08 50%, #d8c89f 50%)}
+  .moon[data-phase="full"]{
+    background:radial-gradient(circle at 50% 50%, #f4ecd6 0%, #d8c89f 70%, #a08560 100%);
+    box-shadow:0 0 18px rgba(180,160,120,.6), inset 0 0 12px rgba(255,240,200,.4);
+  }
+  .moon[data-phase="waning"]{background:linear-gradient(90deg, #d8c89f 50%, #1a0e08 50%)}
+  .moon.active{outline:2px solid var(--blood);outline-offset:3px}
+  .moon-row .day-num{
+    font-family:"IM Fell English",serif;font-size:11px;color:var(--ink-2);text-align:center;
+    margin-top:4px;
+  }
+  .day-axis{display:grid;grid-template-columns:repeat(15,1fr);gap:6px;margin-top:6px}
+  .day-axis span{font-family:"IM Fell English",serif;font-size:11px;color:var(--ink-2);text-align:center}
+
+  /* TIDE BAR */
+  .tide{
+    margin-top:24px;
+  }
+  .tide-label{font-family:"IM Fell English SC",serif;font-size:11px;letter-spacing:.25em;color:var(--rust);margin-bottom:6px}
+  .tide-bar{
+    display:grid;grid-template-columns:repeat(6,1fr);height:36px;border:1px solid var(--ink);
+    overflow:hidden;
+  }
+  .tide-bar .stage{
+    display:flex;align-items:center;justify-content:center;
+    font-family:"IM Fell English SC",serif;font-size:12px;letter-spacing:.2em;
+    border-right:1px solid var(--ink);color:var(--ink);cursor:pointer;transition:background .2s;
+    position:relative;
+  }
+  .tide-bar .stage:last-child{border-right:none}
+  .tide-bar .stage[data-level="1"]{background:rgba(58,36,26,.05)}
+  .tide-bar .stage[data-level="2"]{background:rgba(58,36,26,.12)}
+  .tide-bar .stage[data-level="3"]{background:rgba(58,36,26,.22)}
+  .tide-bar .stage[data-level="4"]{background:rgba(58,36,26,.32)}
+  .tide-bar .stage[data-level="5"]{background:rgba(58,36,26,.42);color:var(--bone)}
+  .tide-bar .stage[data-level="6"]{background:rgba(58,36,26,.55);color:var(--bone)}
+  .tide-bar .stage.active::after{
+    content:"";position:absolute;inset:0;border:2px solid var(--blood);pointer-events:none;
+  }
+  .tide-readout{
+    margin-top:14px;font-family:"IM Fell English",serif;font-style:italic;font-size:15px;color:var(--ink-2);
+  }
+  .tide-readout b{font-style:normal;font-family:"IM Fell English SC",serif;color:var(--blood-deep);letter-spacing:.1em;font-size:13px}
+
+  /* BLOOD DRIP DIVIDER — refined */
+  .divider{
+    position:relative;height:48px;margin:36px 0;display:flex;align-items:center;justify-content:center;
+  }
+  .divider svg{width:100%;height:100%;overflow:visible}
+  .divider .ornament{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    font-family:"IM Fell English",serif;font-size:24px;color:var(--blood);
+    background:var(--vellum);padding:0 12px;
+  }
+
+  /* CHECKLIST */
+  .checklist{list-style:none;padding:0;margin:0}
+  .checklist li{
+    display:flex;align-items:flex-start;gap:12px;padding:10px 0;
+    border-bottom:1px dotted rgba(35,21,16,.3);font-size:16px;
+  }
+  .checkbox{
+    width:18px;height:18px;flex:0 0 auto;border:1.5px solid var(--ink);margin-top:3px;
+    position:relative;cursor:pointer;background:rgba(255,255,255,.2);
+  }
+  .checkbox.checked::after{
+    content:"✕";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    color:var(--blood);font-size:18px;font-family:"IM Fell English",serif;line-height:1;
+  }
+
+  /* FACTION CARDS */
+  .factions{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin:20px 0}
+  .faction{
+    padding:18px 20px;border-right:1px solid var(--ink);
+    position:relative;min-height:180px;
+  }
+  .faction:last-child{border-right:none}
+  .faction:nth-child(n+4){border-top:1px solid var(--ink);margin-top:-1px}
+  .faction-seal{
+    width:42px;height:42px;margin-bottom:8px;color:var(--blood);
+  }
+  .faction h4{
+    font-family:"IM Fell English",serif;font-size:22px;margin:0 0 6px;font-weight:400;
+  }
+  .faction .tagline{font-family:"IM Fell English SC",serif;font-size:10px;letter-spacing:.25em;color:var(--rust);margin-bottom:8px;text-transform:uppercase}
+  .faction p{margin:0;font-size:14px;line-height:1.5;color:var(--ink-2)}
+
+  /* PRACTICE QUESTIONS */
+  .qa{margin:0;padding:0;list-style:none;counter-reset:q}
+  .qa li{
+    counter-increment:q;padding:18px 0 18px 56px;position:relative;
+    border-bottom:1px solid rgba(35,21,16,.3);
+  }
+  .qa li::before{
+    content:counter(q, upper-roman) ".";position:absolute;left:0;top:18px;
+    font-family:"IM Fell English",serif;font-size:30px;color:var(--blood);font-style:italic;
+  }
+  .qa .q{font-family:"IM Fell English",serif;font-size:18px;font-style:italic;display:block;margin-bottom:6px;color:var(--ink)}
+  .qa .a{font-size:15px;line-height:1.5;color:var(--ink-2)}
+  .qa .a::before{content:"℞ ";color:var(--blood);font-weight:600}
+
+  /* FOOTER */
+  footer{
+    margin-top:48px;padding-top:18px;border-top:1px solid var(--ink);
+    display:flex;justify-content:space-between;align-items:center;
+    font-family:"IM Fell English SC",serif;font-size:11px;letter-spacing:.25em;color:var(--ink-2);
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- MASTHEAD -->
+  <div class="masthead">
+    <div class="folio">Fol. iv · Codex Crepuscula</div>
+    <div class="title-block">
+      <svg class="sigil" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="44" stroke="currentColor" stroke-width="1.5" fill="none" style="color:var(--ink)"/>
+        <polygon points="50,12 88,82 12,82" stroke="var(--blood)" stroke-width="1.5" fill="none"/>
+        <circle cx="50" cy="50" r="6" fill="var(--blood)"/>
+        <line x1="50" y1="50" x2="50" y2="12" stroke="var(--ink)" stroke-width="0.8"/>
+        <line x1="50" y1="50" x2="88" y2="82" stroke="var(--ink)" stroke-width="0.8"/>
+        <line x1="50" y1="50" x2="12" y2="82" stroke="var(--ink)" stroke-width="0.8"/>
+      </svg>
+      <h1>Dusk</h1>
+      <div class="sub">A Study of the Crepuscular World</div>
+    </div>
+    <div class="folio right">Anno Solis · CCCC</div>
+  </div>
+
+  <!-- TAB NAV -->
+  <div class="tabs" id="tabs">
+    <div class="tab active" data-panel="overview"><span class="ord">I</span>Overview</div>
+    <div class="tab" data-panel="themes"><span class="ord">II</span>Themes</div>
+    <div class="tab" data-panel="mechanics"><span class="ord">III</span>Mechanics</div>
+    <div class="tab" data-panel="moon"><span class="ord">IV</span>Moon &amp; Tide</div>
+    <div class="tab" data-panel="factions"><span class="ord">V</span>Factions</div>
+    <div class="tab" data-panel="questions"><span class="ord">VI</span>Catechism</div>
+    <div class="tab" data-panel="checklist"><span class="ord">VII</span>Checklist</div>
+  </div>
+
+  <main>
+
+  <!-- OVERVIEW -->
+  <section class="panel active" data-panel="overview">
+    <div class="section-head">
+      <div class="chapter">Chapter the First</div>
+      <h2>An Overview</h2>
+      <div class="running">— that the reader may know what world they enter —</div>
+    </div>
+
+    <div class="cols">
+      <p>Dusk is a world that never fully woke up. The sun arrives as a promise it cannot keep — bleeding up from the horizon, holding for a few hours at a low and insufficient angle, then falling in less than a minute. The people of Dusk have built entire civilizations around this insufficiency: their architecture accounts for it, their politics exploit it, their religion interprets it, and their predators depend on it.</p>
+
+      <div class="marginalia">
+        Three pillars uphold the setting: the <em>light clock</em>, <em>ledgered majic</em>, and <em>factional obligation</em>.
+        <span class="who">Marginal hand, c. 397</span>
+      </div>
+
+      <p>The dominant racial power — the Drow — are not monsters. They are survivors of something monstrous that happened to their ancestors, and their current character is shaped by the specific grief of that transformation: a civilization that <em>was</em> something and <em>became</em> something else, and has been arguing about what it lost and what it gained ever since.</p>
+
+      <p>The Vampyres mourn what they lost when they Formed. Lycanthropes argue about whether <em>loss</em> is the right word. Drow look at both and cannot agree whether they are looking at their own future or their own past. Into this argument, humans arrived — mundane, mortal, adaptable, and stubbornly unwilling to be peripheral.</p>
+
+      <div class="marginalia">
+        The Hidden Circle's demonic bargains drive the present crisis, called the <em>Unraveling</em>. Do not study Dusk without studying its debt.
+      </div>
+
+      <p>Power is divided among the Drow Autonomy, the Covens, the Packs, the Free State, the Web, and independent shamans. Each holds part of the world by the throat; none holds it all.</p>
+    </div>
+
+    <div class="pullquote">
+      "We did not lose the sun. We were given just enough of it to remember what we are missing."
+    </div>
+  </section>
+
+  <!-- THEMES -->
+  <section class="panel" data-panel="themes">
+    <div class="section-head">
+      <div class="chapter">Chapter the Second</div>
+      <h2>Themes &amp; Topics</h2>
+      <div class="running">— upon which the campaign turns —</div>
+    </div>
+
+    <div class="glossary">
+      <div class="gloss">
+        <h4>Gothic Intimacy</h4>
+        <p>Horror is personal. Relationships are leverage and lifeline both. The monster is the cousin who returned changed.</p>
+      </div>
+      <div class="gloss">
+        <h4>Political Horror</h4>
+        <p>Survival is political. Affiliation determines whose door opens, whose blade is sheathed, whose ledger forgives.</p>
+      </div>
+      <div class="gloss">
+        <h4>Ritual &amp; Obligation</h4>
+        <p>Deals are binding. Spirits enforce promises. A word spoken under blood is heavier than a word spoken under steel.</p>
+      </div>
+      <div class="gloss">
+        <h4>The Cost of Purity</h4>
+        <p>The Forming's grief shapes Drow society. Lineage is both inheritance and indictment.</p>
+      </div>
+      <div class="gloss">
+        <h4>Form Over Blood</h4>
+        <p>What you <em>became</em> matters more than what you were born. A peasant who Forms eclipses a noble who did not.</p>
+      </div>
+      <div class="gloss">
+        <h4>The Empty Maw</h4>
+        <p>Absence as ontological threat. Glossed voids, blank hours, misfit maps. The dark that is not just dark.</p>
+      </div>
+    </div>
+
+    <div class="divider">
+      <svg viewBox="0 0 800 40" preserveAspectRatio="none">
+        <line x1="0" y1="20" x2="800" y2="20" stroke="var(--ink)" stroke-width="0.8"/>
+        <line x1="0" y1="22" x2="800" y2="22" stroke="var(--ink)" stroke-width="0.3" opacity="0.5"/>
+      </svg>
+      <div class="ornament">❦</div>
+    </div>
+
+    <div class="section-head" style="border:none">
+      <div class="chapter">— a sub-chapter —</div>
+      <h2 style="font-size:36px">World History</h2>
+      <div class="running"></div>
+    </div>
+
+    <table class="table">
+      <thead><tr><th>Era</th><th>Marker</th><th>Bearing on the Present</th></tr></thead>
+      <tbody>
+        <tr><td class="label">Pale-Elf Period</td><td>Surface-oriented; first demon-contact points</td><td>Original sin of the contract; sites still bleed.</td></tr>
+        <tr><td class="label">Interregnum</td><td>Post-blight chaos; the Long Argument</td><td>Established present factional shapes.</td></tr>
+        <tr><td class="label">Current Age</td><td>Four centuries of brittle stability</td><td>The Unraveling cracks it now.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- MECHANICS -->
+  <section class="panel" data-panel="mechanics">
+    <div class="section-head">
+      <div class="chapter">Chapter the Third</div>
+      <h2>Quick Mechanics</h2>
+      <div class="running">— at the table, by the candle —</div>
+    </div>
+
+    <h3 style="font-family:'IM Fell English',serif;font-size:24px;margin:8px 0 4px;font-weight:400;font-style:italic">Of the Light Cycle</h3>
+    <table class="table">
+      <tbody>
+        <tr><td class="label">Pre-Dawn · "Black Hour"</td><td>20–30 min before sunrise. Undead at full capability.</td></tr>
+        <tr><td class="label">Sunrise</td><td>5–10 min ascent. Soft transition.</td></tr>
+        <tr><td class="label">Transition Window</td><td>0–30 min. Formed retain capability; pacts settle.</td></tr>
+        <tr><td class="label">Daylight</td><td>2–5 hr by season &amp; region.</td></tr>
+        <tr><td class="label">Sunset</td><td>Less than one minute. The drop.</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="font-family:'IM Fell English',serif;font-size:24px;margin:24px 0 4px;font-weight:400;font-style:italic">Of the Five Disciplines of Majic</h3>
+    <div class="glossary" style="grid-template-columns:repeat(5,1fr)">
+      <div class="gloss" style="border-bottom:none">
+        <h4>Bloodcraft</h4><p>Ledger &amp; pool. Mass Read. Red-Iron Blade.</p>
+      </div>
+      <div class="gloss" style="border-bottom:none">
+        <h4>Spirit-Binding</h4><p>Negotiation. Emergency binding. Scars.</p>
+      </div>
+      <div class="gloss" style="border-bottom:none">
+        <h4>Pactcraft</h4><p>Investments. Demonic bargains. Compounding cost.</p>
+      </div>
+      <div class="gloss" style="border-bottom:none;border-right:1px dashed rgba(35,21,16,.4)">
+        <h4>Forming</h4><p>Thresholds. Deliberate vs. involuntary crossing.</p>
+      </div>
+      <div class="gloss" style="border-bottom:none;border-right:none">
+        <h4>Sun-Work</h4><p>The window only. Draws demonic attention.</p>
+      </div>
+    </div>
+
+    <div class="marginalia" style="margin-top:24px">
+      All majic obeys the <em>Transactional Principle</em>: the ledger must balance. What is taken leaves a Spirit-Scar; what is given leaves a trace; what is hidden compounds.
+    </div>
+  </section>
+
+  <!-- MOON & TIDE TRACKER -->
+  <section class="panel" data-panel="moon">
+    <div class="section-head">
+      <div class="chapter">Chapter the Fourth</div>
+      <h2>Moon &amp; Tide</h2>
+      <div class="running">— click upon any day to set the reckoning —</div>
+    </div>
+
+    <div class="tracker">
+      <h3>The Reckoning Device</h3>
+      <p class="lede">A fifteen-day lunar cycle, a thirty-day tidal month. They align at the peaks. Set the day below to read the world.</p>
+
+      <div class="tide-label">Lunar Cycle · Days I—XV</div>
+      <div class="moon-row" id="moonRow"></div>
+      <div class="day-axis" id="dayAxis"></div>
+
+      <div class="tide">
+        <div class="tide-label" style="margin-top:18px">Tidal Month · Six Stages of Five Days</div>
+        <div class="tide-bar" id="tideBar">
+          <div class="stage" data-stage="A" data-level="6">A</div>
+          <div class="stage" data-stage="B" data-level="5">B</div>
+          <div class="stage" data-stage="C" data-level="3">C</div>
+          <div class="stage" data-stage="D" data-level="1">D</div>
+          <div class="stage" data-stage="E" data-level="3">E</div>
+          <div class="stage" data-stage="F" data-level="5">F</div>
+        </div>
+        <div class="tide-readout" id="readout">
+          On <b>Day VIII · Full Moon · Stage A</b>: the Packs run loud and full; Coven blood-archives sing; coastal settlements stand to the waterline; Pack-Rebirth and Pale-Remembrance both peak. Treat all Pack rolls at advantage; all stealth at disadvantage.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FACTIONS -->
+  <section class="panel" data-panel="factions">
+    <div class="section-head">
+      <div class="chapter">Chapter the Fifth</div>
+      <h2>Of the Powers</h2>
+      <div class="running">— each holds the world by a different throat —</div>
+    </div>
+
+    <div class="factions">
+      <div class="faction">
+        <svg class="faction-seal" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" stroke="currentColor" fill="none" stroke-width="1"/><path d="M20 4 L20 36 M4 20 L36 20" stroke="currentColor" stroke-width="0.8"/><circle cx="20" cy="20" r="6" fill="currentColor"/></svg>
+        <h4>Drow Autonomy</h4>
+        <div class="tagline">Lineage · Law · Matriarchate</div>
+        <p>Inquisition and Web intelligence. The argument that became a state. Holds the deep cities and the registries that say who you are.</p>
+      </div>
+      <div class="faction">
+        <svg class="faction-seal" viewBox="0 0 40 40"><path d="M20 6 Q10 18 20 34 Q30 18 20 6 Z" stroke="currentColor" fill="none" stroke-width="1"/><circle cx="20" cy="20" r="3" fill="currentColor"/></svg>
+        <h4>The Covens</h4>
+        <div class="tagline">Vampyre Houses · Blood-Archives</div>
+        <p>Pale-Remembrance keeps the long ledger. Marrowgate is theirs. A Coven debt outlives its debtor.</p>
+      </div>
+      <div class="faction">
+        <svg class="faction-seal" viewBox="0 0 40 40"><circle cx="20" cy="22" r="14" stroke="currentColor" fill="none" stroke-width="1"/><path d="M14 14 L10 8 M26 14 L30 8 M14 28 L20 32 L26 28" stroke="currentColor" fill="none" stroke-width="1"/></svg>
+        <h4>The Packs</h4>
+        <div class="tagline">Lycanthropic Great-Houses</div>
+        <p>Hunt Courts and Pack-Rebirth. Fenhold runs by their teeth. The moon is their loudest court.</p>
+      </div>
+      <div class="faction">
+        <svg class="faction-seal" viewBox="0 0 40 40"><rect x="8" y="14" width="24" height="14" stroke="currentColor" fill="none" stroke-width="1"/><path d="M8 14 L20 6 L32 14" stroke="currentColor" fill="none" stroke-width="1"/><line x1="20" y1="14" x2="20" y2="28" stroke="currentColor" stroke-width="0.8"/></svg>
+        <h4>The Free State</h4>
+        <div class="tagline">Neutral Commerce · Guild Tallies</div>
+        <p>Mercantile Haven. The road that all three predators must use. Tallies are its tongue and its sword.</p>
+      </div>
+      <div class="faction">
+        <svg class="faction-seal" viewBox="0 0 40 40"><circle cx="20" cy="20" r="3" fill="currentColor"/><circle cx="20" cy="20" r="9" stroke="currentColor" fill="none" stroke-width="0.6"/><circle cx="20" cy="20" r="15" stroke="currentColor" fill="none" stroke-width="0.4"/><path d="M20 5 L20 35 M5 20 L35 20 M9 9 L31 31 M31 9 L9 31" stroke="currentColor" stroke-width="0.4"/></svg>
+        <h4>The Web</h4>
+        <div class="tagline">Memory-Binding · Dossiers</div>
+        <p>Knows what you forgot you said. Covert operations. The faction that exists chiefly in margins of other factions' ledgers.</p>
+      </div>
+      <div class="faction">
+        <svg class="faction-seal" viewBox="0 0 40 40"><path d="M20 6 L26 18 L20 30 L14 18 Z" stroke="currentColor" fill="none" stroke-width="1"/><circle cx="20" cy="18" r="2" fill="currentColor"/><path d="M10 34 Q20 28 30 34" stroke="currentColor" fill="none" stroke-width="0.8"/></svg>
+        <h4>The Hidden Circle</h4>
+        <div class="tagline">Demonic Investments · Unraveling</div>
+        <p>The bargain that compounds. The cause everyone has reason to deny. The reason the present is brittle.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUESTIONS -->
+  <section class="panel" data-panel="questions">
+    <div class="section-head">
+      <div class="chapter">Chapter the Sixth</div>
+      <h2>A Catechism</h2>
+      <div class="running">— for the student of the world —</div>
+    </div>
+
+    <ol class="qa">
+      <li><span class="q">What does the thirty-minute weak-light window do for Vampyres?</span><span class="a">They retain full Formed capabilities; sunlight grows harmful only after the window has passed.</span></li>
+      <li><span class="q">Name three currencies and the factions that mint them.</span><span class="a">Copper (everyday), Silver Marks (Autonomy), Bloodmarks (Covens), Guild Tallies (Free State).</span></li>
+      <li><span class="q">What befalls a Drow who Forms?</span><span class="a">The Severing Night — loss of lineage status. They become kin to what they were taught to fear.</span></li>
+      <li><span class="q">How does Bloodcraft drive narrative?</span><span class="a">It leaves readable traces that fuel political leverage. Nothing done in blood is done in private.</span></li>
+      <li><span class="q">What triggers the Unraveling?</span><span class="a">Hidden Circle bargains coming due. Spiritual and political collapse alike.</span></li>
+      <li><span class="q">Describe the spiritual hierarchy.</span><span class="a">Living → Ancestor Spirits → Nature Spirits → Spirit Guides → Angels.</span></li>
+      <li><span class="q">Name the five disciplines of majic.</span><span class="a">Bloodcraft, Spirit-Binding, Pactcraft, Forming, Sun-Work.</span></li>
+    </ol>
+  </section>
+
+  <!-- CHECKLIST -->
+  <section class="panel" data-panel="checklist">
+    <div class="section-head">
+      <div class="chapter">Chapter the Seventh</div>
+      <h2>The Study</h2>
+      <div class="running">— the reader's own ledger —</div>
+    </div>
+
+    <ul class="checklist" id="checklist">
+      <li><span class="checkbox"></span>Memorise the weak-light window and its regional variations.</li>
+      <li><span class="checkbox"></span>Learn lunar and tidal cycles, and the alignment at the peaks.</li>
+      <li><span class="checkbox"></span>Understand Forming and its racial implications.</li>
+      <li><span class="checkbox"></span>Review all five majic disciplines and the Transactional Principle.</li>
+      <li><span class="checkbox"></span>Know the key factions, their NPCs, and the lines between them.</li>
+      <li><span class="checkbox"></span>Master the economy: currencies, formulae, trade.</li>
+      <li><span class="checkbox"></span>Study settlements city by city, town by town.</li>
+      <li><span class="checkbox"></span>Grasp the spiritual hierarchy and the shaman's neutrality.</li>
+      <li><span class="checkbox"></span>Understand the Empty Maw and its fractures.</li>
+    </ul>
+  </section>
+
+  </main>
+
+  <footer>
+    <div>Codex Crepuscula · Studio of the Setting Sun</div>
+    <div>Anno Solis · CCCC · Folio iv</div>
+  </footer>
+</div>
+
+<script>
+  // TABS
+  const tabs = document.querySelectorAll('.tab');
+  const panels = document.querySelectorAll('.panel');
+  tabs.forEach(t => t.addEventListener('click', () => {
+    const id = t.dataset.panel;
+    tabs.forEach(x => x.classList.toggle('active', x === t));
+    panels.forEach(p => p.classList.toggle('active', p.dataset.panel === id));
+    window.scrollTo({top:0, behavior:'smooth'});
+  }));
+
+  // MOON ROW
+  const phases = ['new','waxing','waxing','waxing','waxing','waxing','waxing','full','waning','waning','waning','waning','waning','waning','new'];
+  const moonRow = document.getElementById('moonRow');
+  const dayAxis = document.getElementById('dayAxis');
+  const roman = ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV'];
+  let activeDay = 7; // Day VIII (index 7)
+  for (let i=0;i<15;i++){
+    const m = document.createElement('div');
+    m.className = 'moon';
+    m.dataset.phase = phases[i];
+    m.dataset.day = i;
+    m.title = `Day ${roman[i]}`;
+    if (i===activeDay) m.classList.add('active');
+    m.addEventListener('click', () => setDay(i));
+    moonRow.appendChild(m);
+    const d = document.createElement('span');
+    d.textContent = roman[i];
+    dayAxis.appendChild(d);
+  }
+
+  // TIDE
+  const stages = document.querySelectorAll('.tide-bar .stage');
+  // Day 8 = Stage A; map day index 0..14 → stage index 0..5
+  const dayToStage = d => {
+    // 30-day tidal month; lunar 15 days. Stage A on Day VIII. Wrap.
+    const map = ['D','E','E','E','F','F','F','A','A','A','B','B','B','C','C'];
+    return map[d];
+  };
+  const readout = document.getElementById('readout');
+  const tideText = {
+    A: 'Packs run loud and full; Coven blood-archives sing; coastal settlements stand to the waterline; Pack-Rebirth and Pale-Remembrance both peak. Treat all Pack rolls at advantage; all stealth at disadvantage.',
+    B: 'High tide ebbing. Pack cohesion strong but fraying. Web operations easier in dockside districts.',
+    C: 'Slack. The world\'s pulse quiets. A good day to negotiate; a bad day to ambush.',
+    D: 'Low tide. Coastal cellars exposed. Smugglers move. Coven appetite low.',
+    E: 'Tide returning. Spirits restless. Shamans charge fees.',
+    F: 'Approach to alignment. Tension everywhere; Packs gather; Covens send invitations.'
+  };
+  function setDay(i){
+    activeDay = i;
+    document.querySelectorAll('.moon').forEach((m,j) => m.classList.toggle('active', j===i));
+    const stage = dayToStage(i);
+    stages.forEach(s => s.classList.toggle('active', s.dataset.stage===stage));
+    const phaseName = phases[i]==='new'?'New Moon':phases[i]==='full'?'Full Moon':phases[i]==='waxing'?'Waxing':'Waning';
+    readout.innerHTML = `On <b>Day ${roman[i]} · ${phaseName} · Stage ${stage}</b>: ${tideText[stage]}`;
+  }
+  stages.forEach(s => s.addEventListener('click', () => {
+    // Jump to first day in this stage
+    const stage = s.dataset.stage;
+    for (let i=0;i<15;i++) if (dayToStage(i)===stage){ setDay(i); break; }
+  }));
+  setDay(7);
+
+  // CHECKLIST
+  document.querySelectorAll('.checklist .checkbox').forEach(cb => {
+    cb.addEventListener('click', () => cb.classList.toggle('checked'));
+  });
+</script>
+
+</body>
+</html>

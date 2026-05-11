@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dusk — Lineage Paper</title>
+<link rel="stylesheet" href="../assets/dusk.css">
+<style>
+  .sheet{padding:72px 80px}
+  .head{text-align:center;margin-bottom:18px}
+  .head .imprint{font-family:"IM Fell English SC",serif;font-size:10px;letter-spacing:.4em;color:var(--rust);text-transform:uppercase}
+  .head h1{font-size:54px;line-height:1;margin:6px 0 4px;letter-spacing:.02em}
+  .head .h1-gilt{
+    background:linear-gradient(180deg,#8a5d1c 0%,#d9ad48 30%,#f0d480 50%,#b07f24 70%,#8a5d1c 100%);
+    background-clip:text;-webkit-background-clip:text;color:transparent;
+    filter:drop-shadow(0 1px 0 rgba(74,40,12,.4));
+  }
+  .head .deck{font-style:italic;font-size:15px;color:var(--ink-2)}
+  .stamp-block{
+    display:grid;grid-template-columns:1fr auto 1fr;gap:24px;align-items:center;margin:20px 0;
+  }
+  .seal-col{display:flex;flex-direction:column;align-items:center;gap:6px}
+  .seal-col .cap{font-family:"IM Fell English SC",serif;font-size:9px;letter-spacing:.25em;color:var(--rust);text-transform:uppercase}
+  .preamble{
+    font-family:"IM Fell English",serif;font-style:italic;font-size:15px;line-height:1.55;
+    text-align:center;color:var(--ink-2);margin:0 24px 18px;
+  }
+  .section-h{
+    font-family:"IM Fell English SC",serif;font-size:11px;letter-spacing:.3em;color:var(--blood-deep);
+    text-transform:uppercase;border-bottom:1px solid var(--ink);padding-bottom:3px;margin:18px 0 10px;
+  }
+  .lineage-tree{margin:6px 0}
+  .lineage-tree ul{list-style:none;padding-left:20px;margin:4px 0;border-left:1px solid var(--ink-3)}
+  .lineage-tree li{padding:3px 0 3px 12px;font-size:14.5px;position:relative}
+  .lineage-tree li::before{content:"—";position:absolute;left:-2px;color:var(--gilt);font-weight:bold}
+  .lineage-tree .name{font-family:"IM Fell English",serif;font-style:italic;font-size:16px;color:var(--ink)}
+  .lineage-tree .yr{font-family:"IM Fell English SC",serif;font-size:9px;letter-spacing:.15em;color:var(--rust);margin-left:8px}
+  .lineage-tree .note{font-size:12px;color:var(--ink-3);font-style:italic;display:block;margin-top:1px}
+  .severance{
+    border:1px solid var(--blood);padding:12px 16px;margin:14px 0;
+    background:rgba(122,26,31,.05);position:relative;
+  }
+  .severance::before{
+    content:"SEVERANCE CLAUSE";position:absolute;top:-8px;left:14px;background:var(--vellum);
+    padding:0 8px;font-family:"IM Fell English SC",serif;font-size:9px;letter-spacing:.3em;color:var(--blood-deep);
+  }
+  .severance p{margin:4px 0;font-size:13.5px;line-height:1.5;font-style:italic}
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:12px;border-top:1px solid var(--ink-3);border-left:1px solid var(--ink-3)}
+  .stat{padding:10px 14px;border-right:1px solid var(--ink-3);border-bottom:1px solid var(--ink-3)}
+  .stat .k{font-family:"IM Fell English SC",serif;font-size:9px;letter-spacing:.25em;color:var(--rust);text-transform:uppercase;margin-bottom:4px}
+  .stat .v{font-family:"IM Fell English",serif;font-size:18px;color:var(--ink)}
+  .stat .v.score{color:var(--blood)}
+  .footer-note{
+    margin-top:18px;text-align:center;font-family:"IM Fell English",serif;font-style:italic;font-size:12px;color:var(--rust);
+  }
+</style>
+</head>
+<body>
+<div class="desk">
+  <a href="../Dusk Handouts.html" class="back-link">← Handouts</a>
+  <div class="sheet">
+    <div class="paper-texture"></div>
+    <span class="stain s1"></span><span class="stain s2"></span>
+    <div class="frame-border">
+      <svg class="corner tl" viewBox="0 0 28 28"><path d="M2 14 Q2 2 14 2 M2 8 Q2 4 6 4 L10 4 M6 2 L6 6 M14 6 L18 6" stroke="currentColor" stroke-width="1" fill="none"/><circle cx="6" cy="6" r="1.5" fill="currentColor"/></svg>
+      <svg class="corner tr" viewBox="0 0 28 28"><path d="M2 14 Q2 2 14 2 M2 8 Q2 4 6 4 L10 4 M6 2 L6 6 M14 6 L18 6" stroke="currentColor" stroke-width="1" fill="none"/><circle cx="6" cy="6" r="1.5" fill="currentColor"/></svg>
+      <svg class="corner bl" viewBox="0 0 28 28"><path d="M2 14 Q2 2 14 2 M2 8 Q2 4 6 4 L10 4 M6 2 L6 6 M14 6 L18 6" stroke="currentColor" stroke-width="1" fill="none"/><circle cx="6" cy="6" r="1.5" fill="currentColor"/></svg>
+      <svg class="corner br" viewBox="0 0 28 28"><path d="M2 14 Q2 2 14 2 M2 8 Q2 4 6 4 L10 4 M6 2 L6 6 M14 6 L18 6" stroke="currentColor" stroke-width="1" fill="none"/><circle cx="6" cy="6" r="1.5" fill="currentColor"/></svg>
+    </div>
+
+    <div class="head">
+      <div class="imprint">Drow Autonomy · Office of the Matriarchate</div>
+      <h1 class="h1-gilt">Lineage Paper</h1>
+      <div class="deck">— issued under seal of the House Registrar —</div>
+    </div>
+    <div class="gilt-rule"></div>
+
+    <div class="stamp-block">
+      <div class="seal-col">
+        <div class="wax-seal">
+          <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="14" stroke="currentColor" fill="none" stroke-width="1.2"/><path d="M20 6 L20 34 M6 20 L34 20" stroke="currentColor" stroke-width="1"/><circle cx="20" cy="20" r="4" fill="currentColor"/></svg>
+        </div>
+        <div class="cap">House Seal</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-family:'IM Fell English',serif;font-size:42px;line-height:1">Vh'Aelir</div>
+        <div class="smallcaps" style="font-size:10px;color:var(--rust);margin-top:4px">— Of the Third Court, Blackstone —</div>
+        <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:13px;color:var(--ink-2);margin-top:8px">Registered upon the eve of Stage F · Anno Solis CCCC</div>
+      </div>
+      <div class="seal-col">
+        <div class="wax-seal">
+          <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="3" fill="currentColor"/><circle cx="20" cy="20" r="9" stroke="currentColor" fill="none" stroke-width=".8"/><circle cx="20" cy="20" r="15" stroke="currentColor" fill="none" stroke-width=".6"/><path d="M20 5 L20 35 M5 20 L35 20 M9 9 L31 31 M31 9 L9 31" stroke="currentColor" stroke-width=".5"/></svg>
+        </div>
+        <div class="cap">Web Counter-Seal</div>
+      </div>
+    </div>
+
+    <p class="preamble">Let it be known that the bearer of this paper holds the lineage hereunder recorded, and shall be afforded the offices, courtesies, and obligations of the same — until such time as severance is rung at the Matriarchate.</p>
+
+    <div class="field">
+      <span class="lbl">Bearer</span>
+      <span class="val">Reyl'an Vh'Aelir, second of the Pale Hand</span>
+    </div>
+    <div class="field">
+      <span class="lbl">Issued</span>
+      <span class="val">Day VIII · Full Moon · Stage A</span>
+    </div>
+    <div class="field">
+      <span class="lbl">Registrar</span>
+      <span class="val">Mother-Scribe Iselva Vh'Aelir</span>
+    </div>
+
+    <div class="section-h">Registered Ancestors</div>
+    <div class="lineage-tree">
+      <div><span class="name">Aelir the Pale</span><span class="yr">A.S. 187 — 261</span><span class="note">Founder · Pact-broken with the Hidden Circle on the eve of the Severing.</span></div>
+      <ul>
+        <li><span class="name">Daughter Vhel Aelir</span><span class="yr">A.S. 224 — 312</span></li>
+        <ul>
+          <li><span class="name">Iselva Vh'Aelir</span><span class="yr">A.S. 280 — extant</span><span class="note">Matriarch · Registrar</span></li>
+          <li><span class="name">Aurel Vh'Aelir</span><span class="yr">A.S. 286 — Severed A.S. 351</span><span class="note">Formed in violation. Lineage stripped.</span></li>
+          <ul>
+            <li><span class="name">Reyl'an Vh'Aelir</span><span class="yr">A.S. 372 — extant</span><span class="note">— Bearer of this paper —</span></li>
+          </ul>
+        </ul>
+      </ul>
+    </div>
+
+    <div class="section-h">Lineage Properties</div>
+    <div class="stats">
+      <div class="stat"><div class="k">Forgery Difficulty</div><div class="v">DC 22 · Hard</div></div>
+      <div class="stat"><div class="k">Web Detection</div><div class="v score">7 in 10 · within Autonomy lands</div></div>
+      <div class="stat"><div class="k">Autonomy Entry</div><div class="v">All wards save the Inquisition</div></div>
+      <div class="stat"><div class="k">Bearer's Rank</div><div class="v">Cousin-Second · Pale Hand</div></div>
+    </div>
+
+    <div class="severance">
+      <p>Severance follows upon any of: (i) deliberate Forming without sanction; (ii) blood-compact entered with a banned faction; (iii) failure to answer three Matriarchal summons in a single tidal month.</p>
+      <p>Upon severance the bearer's name shall be struck from this paper in red, the paper returned to the Registrar, and the bearer named <em>kinless</em> until restored by writ.</p>
+    </div>
+
+    <div class="signature">
+      <div class="line" data-label="Bearer's mark"></div>
+      <div class="line" data-label="Registrar's seal"></div>
+      <div class="line" data-label="Date of severance"></div>
+    </div>
+
+    <div class="footer-note">— this paper is the property of the House. To carry another's is a Severing offence. —</div>
+  </div>
+</div>
+</body>
+</html>

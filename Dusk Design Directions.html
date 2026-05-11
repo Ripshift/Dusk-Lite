@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dusk — Design Directions</title>
+<style>
+  html,body{margin:0;padding:0;background:#f0eee9;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif}
+  .dc-frame-card{
+    background:#fff;border-radius:6px;overflow:hidden;
+    box-shadow:0 1px 2px rgba(0,0,0,.08),0 8px 24px rgba(0,0,0,.06);
+  }
+  .dc-frame-card iframe{
+    width:100%;height:100%;border:0;display:block;
+  }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="design-canvas.jsx"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const Frame = ({src}) => (
+  <iframe src={src} loading="lazy" sandbox="allow-scripts allow-same-origin"></iframe>
+);
+
+const App = () => (
+  <DesignCanvas>
+    <DCSection
+      id="overview"
+      title="Dusk — Three Directions"
+      subtitle="Mid-fi explorations of the gothic study guide. All share the bone/blood/ink palette and the ink-on-vellum vibe; they differ in structure, type pairing, and how dramatic the manuscript gesture is. Tabbed nav (no scroll) and an interactive moon-and-tide tracker live in every direction. Open any artboard fullscreen to interact."
+    >
+      <DCArtboard id="vellum" label="A · Vellum Codex" width={1280} height={1100}>
+        <Frame src="directions/vellum-codex.html" />
+      </DCArtboard>
+
+      <DCArtboard id="black" label="B · Black Folio" width={1280} height={1100}>
+        <Frame src="directions/black-folio.html" />
+      </DCArtboard>
+
+      <DCArtboard id="atlas" label="C · Atlas Spread" width={1440} height={1000}>
+        <Frame src="directions/atlas-spread.html" />
+      </DCArtboard>
+
+      <DCPostIt x={20} y={40} width={260}>
+        <b>A · Vellum Codex</b><br/><br/>
+        Cream parchment, two-column scholarly book. Drop caps, marginalia, pull quotes, ❦ ornaments. The closest to a traditional sourcebook page — most readable as a handout. <em>IM Fell English</em> display over <em>EB Garamond</em> body.
+      </DCPostIt>
+
+      <DCPostIt x={20} y={260} width={260}>
+        <b>B · Black Folio</b><br/><br/>
+        Dark charred page, bone text, gilt &amp; blood accents. More theatrical. Numbered sections in a left rail, large numerals as section markers, wider measure. Best for screen reading at the table. <em>IM Fell English</em> + <em>Cormorant Garamond</em>.
+      </DCPostIt>
+
+      <DCPostIt x={20} y={460} width={260}>
+        <b>C · Atlas Spread</b><br/><br/>
+        Open-book metaphor. Two-page spread with a gutter shadow, vertical bookmark tabs on the outer edge, plates and folio numbers. The most "handout-feels-like-a-real-thing" of the three. Lots of paneled content.
+      </DCPostIt>
+
+      <DCPostIt x={20} y={680} width={260}>
+        <b>Shared improvements</b><br/><br/>
+        • Tabbed nav replaces scroll<br/>
+        • Live moon + tidal tracker (click any day)<br/>
+        • Blood-drip divider kept &amp; refined<br/>
+        • Display + body serif pairing<br/>
+        • Sigil redrawn in line w/ blood center<br/>
+        • Faction seals as iconography
+      </DCPostIt>
+
+      <DCPostIt x={20} y={920} width={260}>
+        <b>What's next</b><br/><br/>
+        Pick a direction (or steal pieces) and I'll polish to hi-fi, swap in real art, and split out GM-tool handouts (lineage papers, blood compacts, light clock).
+      </DCPostIt>
+    </DCSection>
+  </DesignCanvas>
+);
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

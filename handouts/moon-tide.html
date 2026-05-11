@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dusk — Moon & Tide Tracker</title>
+<link rel="stylesheet" href="../assets/dusk.css">
+<style>
+  .head{text-align:center;margin-bottom:12px}
+  .head .imprint{font-family:"IM Fell English SC",serif;font-size:10px;letter-spacing:.4em;color:var(--rust);text-transform:uppercase}
+  .head h1{font-size:54px;line-height:1;margin:6px 0}
+  .head .h1-gilt{background:linear-gradient(180deg,#8a5d1c 0%,#d9ad48 30%,#f0d480 50%,#b07f24 70%,#8a5d1c 100%);background-clip:text;-webkit-background-clip:text;color:transparent}
+  .head .deck{font-style:italic;font-size:14px;color:var(--ink-2)}
+
+  /* Lunar dial */
+  .dial-wrap{display:flex;justify-content:center;margin:24px 0 8px}
+  .dial{position:relative;width:480px;height:480px}
+  .dial svg{width:100%;height:100%}
+  .moon-cell text{font-family:"IM Fell English SC",serif;font-size:9px;letter-spacing:.15em;fill:var(--ink-2)}
+  .moon-cell .num{font-family:"IM Fell English",serif;font-style:italic;font-size:11px;fill:var(--ink)}
+  .moon-cell circle.bg{fill:#1c0f08;stroke:var(--ink);stroke-width:.5}
+  .moon-cell .lit{fill:#d8d6c4}
+  .moon-cell.active circle.bg{stroke:var(--blood);stroke-width:1.5}
+  .ring-label{font-family:"IM Fell English SC",serif;font-size:9px;letter-spacing:.3em;fill:var(--rust);text-transform:uppercase}
+
+  /* Tidal stages legend */
+  .tides{display:grid;grid-template-columns:repeat(6,1fr);gap:0;border-top:1px solid var(--ink-3);border-left:1px solid var(--ink-3);margin-top:12px}
+  .tide{padding:10px 8px;border-right:1px solid var(--ink-3);border-bottom:1px solid var(--ink-3);text-align:center}
+  .tide .stage{font-family:"IM Fell English SC",serif;font-size:10px;letter-spacing:.3em;color:var(--blood-deep);text-transform:uppercase}
+  .tide .name{font-family:"IM Fell English",serif;font-style:italic;font-size:14px;color:var(--ink);margin-top:3px}
+  .tide .days{font-family:"IM Fell English SC",serif;font-size:9px;letter-spacing:.2em;color:var(--rust);margin-top:4px}
+  .tide .effect{font-size:11px;color:var(--ink-2);font-style:italic;margin-top:4px;line-height:1.4}
+
+  .section-h{font-family:"IM Fell English SC",serif;font-size:11px;letter-spacing:.3em;color:var(--blood-deep);border-bottom:1px solid var(--ink);padding-bottom:3px;margin:20px 0 8px;text-transform:uppercase}
+
+  .modifiers{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--ink-3);border-left:1px solid var(--ink-3)}
+  .mod{padding:10px 14px;border-right:1px solid var(--ink-3);border-bottom:1px solid var(--ink-3)}
+  .mod .who{font-family:"IM Fell English SC",serif;font-size:10px;letter-spacing:.25em;color:var(--rust);text-transform:uppercase}
+  .mod .what{font-family:"IM Fell English",serif;font-style:italic;font-size:15px;color:var(--ink);margin-top:2px}
+  .mod .when{font-size:11px;color:var(--ink-2);margin-top:3px;line-height:1.4}
+</style>
+</head>
+<body>
+<div class="desk">
+  <a href="../Dusk Handouts.html" class="back-link">← Handouts</a>
+  <div class="sheet">
+    <div class="paper-texture"></div>
+    <span class="stain s1"></span><span class="stain s2"></span>
+    <div class="frame-border">
+      <svg class="corner tl" viewBox="0 0 28 28"><path d="M2 14 Q2 2 14 2 M6 2 L6 6 M14 6 L18 6" stroke="currentColor" stroke-width="1" fill="none"/><circle cx="6" cy="6" r="1.5" fill="currentColor"/></svg>
+      <svg class="corner tr" viewBox="0 0 28 28"><path d="M2 14 Q2 2 14 2 M6 2 L6 6 M14 6 L18 6" stroke="currentColor" stroke-width="1" fill="none"/><circle cx="6" cy="6" r="1.5" fill="currentColor"/></svg>
+      <svg class="corner bl" viewBox="0 0 28 28"><path d="M2 14 Q2 2 14 2 M6 2 L6 6 M14 6 L18 6" stroke="currentColor" stroke-width="1" fill="none"/><circle cx="6" cy="6" r="1.5" fill="currentColor"/></svg>
+      <svg class="corner br" viewBox="0 0 28 28"><path d="M2 14 Q2 2 14 2 M6 2 L6 6 M14 6 L18 6" stroke="currentColor" stroke-width="1" fill="none"/><circle cx="6" cy="6" r="1.5" fill="currentColor"/></svg>
+    </div>
+
+    <div class="head">
+      <div class="imprint">Lunar · Tidal · The Ice-Blue Moon</div>
+      <h1 class="h1-gilt">Moon &amp; Tide</h1>
+      <div class="deck">— a fifteen-day cycle within a thirty-day month —</div>
+    </div>
+    <div class="gilt-rule"></div>
+
+    <div class="dial-wrap">
+      <div class="dial" id="dial">
+        <svg viewBox="0 0 480 480">
+          <!-- outer gilt ring -->
+          <circle cx="240" cy="240" r="220" fill="none" stroke="#a87b2e" stroke-width="1"/>
+          <circle cx="240" cy="240" r="215" fill="none" stroke="#a87b2e" stroke-width=".4" opacity=".6"/>
+          <!-- ring labels -->
+          <path id="topArc" d="M 80 240 A 160 160 0 0 1 400 240" fill="none"/>
+          <text class="ring-label"><textPath href="#topArc" startOffset="50%" text-anchor="middle">— Lunar Cycle · Fifteen Days —</textPath></text>
+          <!-- inner orb -->
+          <circle cx="240" cy="240" r="62" fill="#0a1420" stroke="#6a8aa8" stroke-width="1"/>
+          <circle cx="240" cy="240" r="60" fill="url(#orbGrad)"/>
+          <defs>
+            <radialGradient id="orbGrad" cx=".4" cy=".35"><stop offset="0" stop-color="#c0d4e8"/><stop offset=".5" stop-color="#6a8aa8"/><stop offset="1" stop-color="#1a2638"/></radialGradient>
+          </defs>
+          <text x="240" y="244" text-anchor="middle" font-family="IM Fell English, serif" font-style="italic" font-size="13" fill="#0a0a0a">Ice-Blue Moon</text>
+          <g id="moonCells"></g>
+        </svg>
+      </div>
+    </div>
+
+    <div class="section-h">Tidal Month · Six Five-Day Stages</div>
+    <div class="tides">
+      <div class="tide"><div class="stage">Stage A</div><div class="name">Spring Surge</div><div class="days">Days 1–5</div><div class="effect">Aligns with Full Moon. Coastal flood; rituals at full power.</div></div>
+      <div class="tide"><div class="stage">Stage B</div><div class="name">Ebbing</div><div class="days">Days 6–10</div><div class="effect">Pack activity wanes. Trade caravans resume.</div></div>
+      <div class="tide"><div class="stage">Stage C</div><div class="name">Neap</div><div class="days">Days 11–15</div><div class="effect">Quiet waters. Bloodcraft traces fade quickest.</div></div>
+      <div class="tide"><div class="stage">Stage D</div><div class="name">Slack</div><div class="days">Days 16–20</div><div class="effect">Spirits drowsy. Negotiations favored.</div></div>
+      <div class="tide"><div class="stage">Stage E</div><div class="name">Rising</div><div class="days">Days 21–25</div><div class="effect">Coven archives stir. Compacts hard to break.</div></div>
+      <div class="tide"><div class="stage">Stage F</div><div class="name">Crest</div><div class="days">Days 26–30</div><div class="effect">Returns to Stage A. Alignment imminent.</div></div>
+    </div>
+
+    <div class="section-h">Faction Modifiers</div>
+    <div class="modifiers">
+      <div class="mod"><div class="who">Packs</div><div class="what">Full Moon (Day 8)</div><div class="when">Forming thresholds halved. Hunt Courts in session. Pack cohesion at peak.</div></div>
+      <div class="mod"><div class="who">Covens</div><div class="what">Stage A / Full Alignment</div><div class="when">Blood-archives most readable. Pale-Remembrance rites observed.</div></div>
+      <div class="mod"><div class="who">Drow Autonomy</div><div class="what">New Moon (Day 1, Day 15)</div><div class="when">Web operates with reduced detection. Inquisition tribunals convene.</div></div>
+      <div class="mod"><div class="who">Shamans</div><div class="what">Stage C · Neap</div><div class="when">Ancestor contact strongest in still water. Birth and Forming rites scheduled.</div></div>
+      <div class="mod"><div class="who">Free State</div><div class="what">Stage B / D · Slack</div><div class="when">Caravan windows. Guild Tallies clear and trade negotiations finalize.</div></div>
+      <div class="mod"><div class="who">Hidden Circle</div><div class="what">Full Moon + Stage A</div><div class="when">Unraveling fractures most likely. Pact debts come due.</div></div>
+    </div>
+
+    <div class="section-h">Alignment</div>
+    <p style="font-size:13.5px;line-height:1.6;color:var(--ink-2);font-style:italic;margin:8px 0 0">
+      Two lunar cycles fit within a single tidal month. The second Full Moon (Day 23 of the tidal month) does <em>not</em> coincide with Stage A — only the first does. This single alignment is the most dangerous night in Dusk: Pack, Coven, and Circle act in concert with the world's tide. Plans are made and unmade by it.
+    </p>
+  </div>
+</div>
+
+<script>
+  // Build 15 lunar cells around the dial
+  const g = document.getElementById('moonCells');
+  const cx = 240, cy = 240, R = 175;
+  const cells = [];
+  for (let i=0; i<15; i++){
+    const day = i+1;
+    const ang = (i/15)*Math.PI*2 - Math.PI/2;
+    const x = cx + R*Math.cos(ang);
+    const y = cy + R*Math.sin(ang);
+    // phase 0..1, full at 0.5 (day 8)
+    const phase = day/15;
+    // illumination fraction: 0 at day 1 and 15, 1 at day 8
+    const illum = Math.sin(phase*Math.PI);
+    // waxing/waning: waxing if phase<0.5, waning if >0.5
+    const waxing = phase < 0.5;
+    cells.push({day, x, y, illum, waxing});
+  }
+  const NS = 'http://www.w3.org/2000/svg';
+  cells.forEach((c, i) => {
+    const grp = document.createElementNS(NS,'g');
+    grp.setAttribute('class','moon-cell'+(c.day===8?' active':''));
+    grp.setAttribute('transform',`translate(${c.x},${c.y})`);
+    // bg disc
+    const bg = document.createElementNS(NS,'circle');
+    bg.setAttribute('class','bg');bg.setAttribute('r','18');
+    grp.appendChild(bg);
+    // lit portion via clip
+    const w = c.illum;
+    if (w > 0.02){
+      // draw lit crescent: two arcs combined
+      // For simplicity, use an ellipse mask
+      const path = document.createElementNS(NS,'path');
+      // half disc lit, then ellipse cut
+      const r = 16;
+      const lit = w; // 0..1
+      // create a path that fills the lit fraction
+      if (lit > 0.98){
+        const full = document.createElementNS(NS,'circle');
+        full.setAttribute('class','lit');full.setAttribute('r','16');
+        grp.appendChild(full);
+      } else {
+        // half disc on one side
+        const side = c.waxing ? 1 : -1;
+        // Outer half
+        const half = document.createElementNS(NS,'path');
+        half.setAttribute('class','lit');
+        half.setAttribute('d',`M 0 -${r} A ${r} ${r} 0 0 ${c.waxing?1:0} 0 ${r} Z`);
+        grp.appendChild(half);
+        // Inner ellipse — cut/add depending on phase
+        const ex = r * (1 - 2*lit);
+        const ell = document.createElementNS(NS,'ellipse');
+        ell.setAttribute('rx', Math.abs(ex).toString());
+        ell.setAttribute('ry', r.toString());
+        ell.setAttribute('fill', ex > 0 ? '#1c0f08' : '#d8d6c4');
+        grp.appendChild(ell);
+      }
+    }
+    // outline
+    const outline = document.createElementNS(NS,'circle');
+    outline.setAttribute('cx','0');outline.setAttribute('cy','0');outline.setAttribute('r','16');
+    outline.setAttribute('fill','none');outline.setAttribute('stroke','#1c0f08');outline.setAttribute('stroke-width','.6');
+    grp.appendChild(outline);
+    // day label below
+    const t = document.createElementNS(NS,'text');
+    t.setAttribute('class','num');t.setAttribute('y','30');t.setAttribute('text-anchor','middle');
+    t.textContent = c.day;
+    grp.appendChild(t);
+    g.appendChild(grp);
+  });
+</script>
+</body>
+</html>

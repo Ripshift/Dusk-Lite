@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dusk — Web Exposure Dossier</title>
+<link rel="stylesheet" href="../assets/dusk.css">
+<style>
+  .head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:1px solid var(--ink);padding-bottom:10px;margin-bottom:14px}
+  .head .left .imprint{font-family:"IM Fell English SC",serif;font-size:9px;letter-spacing:.4em;color:var(--blood-deep);text-transform:uppercase}
+  .head .left h1{font-size:46px;line-height:1;margin:4px 0}
+  .head .left .deck{font-style:italic;font-size:13px;color:var(--ink-2)}
+  .head .right{text-align:right;font-family:"IM Fell English SC",serif;font-size:9px;letter-spacing:.22em;color:var(--rust);text-transform:uppercase;line-height:1.7}
+  .head .right .case{color:var(--ink);letter-spacing:.3em;font-size:11px;margin-top:2px}
+  .head .right .stamp{display:inline-block;margin-top:6px;border:1.5px solid var(--blood);color:var(--blood);padding:4px 10px;transform:rotate(-3deg);font-size:10px;letter-spacing:.35em}
+
+  /* Visibility meter */
+  .meter-section{margin:12px 0 20px}
+  .section-h{font-family:"IM Fell English SC",serif;font-size:10px;letter-spacing:.3em;color:var(--blood-deep);border-bottom:1px solid var(--ink);padding-bottom:3px;margin:18px 0 8px;text-transform:uppercase}
+  .meter{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:8px}
+  .tier{
+    position:relative;padding:14px 10px 12px;cursor:pointer;
+    background:rgba(140,116,69,.06);
+    border:1px solid var(--ink-3);transition:background .2s;
+  }
+  .tier:hover{background:rgba(140,116,69,.14)}
+  .tier.active{background:rgba(122,26,31,.12);border-color:var(--blood)}
+  .tier .num{position:absolute;top:6px;right:8px;font-family:"IM Fell English",serif;font-style:italic;font-size:11px;color:var(--rust)}
+  .tier .name{font-family:"IM Fell English SC",serif;font-size:10px;letter-spacing:.22em;color:var(--ink);text-transform:uppercase}
+  .tier .desc{font-size:11px;line-height:1.4;color:var(--ink-2);margin-top:4px;font-style:italic}
+  .tier .bar{position:absolute;left:0;bottom:0;height:3px;background:var(--blood);transition:width .3s}
+  .tier:nth-child(1) .bar{width:20%}
+  .tier:nth-child(2) .bar{width:40%}
+  .tier:nth-child(3) .bar{width:60%}
+  .tier:nth-child(4) .bar{width:80%}
+  .tier:nth-child(5) .bar{width:100%;background:var(--blood-bright)}
+
+  /* Response panel */
+  .response{
+    background:rgba(58,32,16,.08);border:1px solid var(--ink-3);
+    padding:14px 18px;margin-top:10px;font-size:13px;line-height:1.6;
+  }
+  .response .lbl{font-family:"IM Fell English SC",serif;font-size:9px;letter-spacing:.3em;color:var(--rust);text-transform:uppercase}
+  .response em{color:var(--blood);font-style:italic}
+
+  /* Leverage table */
+  .form-table td .quiet{color:var(--rust);font-size:11px;font-style:italic}
+
+  /* operative box */
+  .ops{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-top:1px solid var(--ink-3);border-left:1px solid var(--ink-3);margin-top:10px}
+  .op{padding:10px 14px;border-right:1px solid var(--ink-3);border-bottom:1px solid var(--ink-3)}
+  .op .city{font-family:"IM Fell English SC",serif;font-size:10px;letter-spacing:.25em;color:var(--blood-deep);text-transform:uppercase}
+  .op .ops-line{font-family:"IM Fell English",serif;font-style:italic;font-size:14px;color:var(--ink);margin-top:3px}
+  .op .note{font-size:11px;color:var(--ink-2);margin-top:3px;line-height:1.4}
+
+  .footing{margin-top:24px;display:flex;justify-content:space-between;align-items:center;font-family:"IM Fell English SC",serif;font-size:9px;letter-spacing:.3em;color:var(--rust);text-transform:uppercase}
+  .web-glyph{opacity:.5}
+</style>
+</head>
+<body>
+<div class="desk">
+  <a href="../Dusk Handouts.html" class="back-link">← Handouts</a>
+  <div class="sheet">
+    <div class="paper-texture"></div>
+    <span class="stain s2"></span><span class="stain s3"></span>
+    <div class="frame-border">
+      <svg class="corner tl" viewBox="0 0 28 28"><path d="M2 14 Q2 2 14 2 M6 2 L6 6 M14 6 L18 6" stroke="currentColor" stroke-width="1" fill="none"/><circle cx="6" cy="6" r="1.5" fill="currentColor"/></svg>
+      <svg class="corner tr" viewBox="0 0 28 28"><path d="M2 14 Q2 2 14 2 M6 2 L6 6 M14 6 L18 6" stroke="currentColor" stroke-width="1" fill="none"/><circle cx="6" cy="6" r="1.5" fill="currentColor"/></svg>
+      <svg class="corner bl" viewBox="0 0 28 28"><path d="M2 14 Q2 2 14 2 M6 2 L6 6 M14 6 L18 6" stroke="currentColor" stroke-width="1" fill="none"/><circle cx="6" cy="6" r="1.5" fill="currentColor"/></svg>
+      <svg class="corner br" viewBox="0 0 28 28"><path d="M2 14 Q2 2 14 2 M6 2 L6 6 M14 6 L18 6" stroke="currentColor" stroke-width="1" fill="none"/><circle cx="6" cy="6" r="1.5" fill="currentColor"/></svg>
+    </div>
+
+    <div class="head">
+      <div class="left">
+        <div class="imprint">Drow Autonomy · Office of the Web</div>
+        <h1>Exposure Dossier</h1>
+        <div class="deck">— the Web sees in five degrees —</div>
+      </div>
+      <div class="right">
+        File №<br>
+        <div class="case">M / 0427 / IX</div>
+        <div class="stamp">Eyes-Only</div>
+      </div>
+    </div>
+
+    <div class="meter-section">
+      <div class="section-h">Visibility Tiers · Click to Brief</div>
+      <div class="meter" id="meter">
+        <div class="tier active" data-tier="0"><span class="num">i.</span><div class="name">Unseen</div><div class="desc">No record. No echo. Presumed.</div><div class="bar"></div></div>
+        <div class="tier" data-tier="1"><span class="num">ii.</span><div class="name">Noticed</div><div class="desc">Filed by a single operative.</div><div class="bar"></div></div>
+        <div class="tier" data-tier="2"><span class="num">iii.</span><div class="name">Tracked</div><div class="desc">Cross-referenced. Movements known.</div><div class="bar"></div></div>
+        <div class="tier" data-tier="3"><span class="num">iv.</span><div class="name">Flagged</div><div class="desc">A matriarch has read the file.</div><div class="bar"></div></div>
+        <div class="tier" data-tier="4"><span class="num">v.</span><div class="name">Compromised</div><div class="desc">A sanction is in motion.</div><div class="bar"></div></div>
+      </div>
+
+      <div class="response" id="response">
+        <div class="lbl">Likely Web Response</div>
+        <p id="responseBody" style="margin:6px 0 0">No file is opened. Persons of this tier may move freely, though the Web's <em>absence</em> of attention is rarely permanent. Establish bona fides through a known broker before approaching faction territory.</p>
+      </div>
+    </div>
+
+    <div class="section-h">Faction Leverage Indicators</div>
+    <table class="form-table">
+      <tr><th style="width:24%">Indicator</th><th style="width:18%">Reading</th><th>What It Means</th></tr>
+      <tr><td>Memory-Binding Saturation</td><td><span class="quiet">low · moderate · saturated</span></td><td>How thoroughly the subject's recent days are catalogued in operative recall.</td></tr>
+      <tr><td>Dossier Cross-References</td><td><span class="quiet">0 · 1–3 · 4+ files</span></td><td>The Web rarely keeps a single file. Multiple touches indicate sustained interest.</td></tr>
+      <tr><td>Pact-Trace Visibility</td><td><span class="quiet">cold · warm · live</span></td><td>Bloodcraft and Pactcraft leave readable residue. Live traces invite scrutiny.</td></tr>
+      <tr><td>Sanctioned Inquiry</td><td><span class="quiet">none · informal · open</span></td><td>An open inquiry has been formally tabled before a House Matriarch.</td></tr>
+      <tr><td>Inquisition Interest</td><td><span class="quiet">absent · advisory · active</span></td><td>If active, the Inquisition is no longer reading — it is acting.</td></tr>
+    </table>
+
+    <div class="section-h">Settlement Operations</div>
+    <div class="ops">
+      <div class="op"><div class="city">Blackstone</div><div class="ops-line">Three sealed houses</div><div class="note">Web headquarters. Surveillance from the Inquisition wing — assume saturated.</div></div>
+      <div class="op"><div class="city">Marrowgate</div><div class="ops-line">Coven-Web concord</div><div class="note">Blood-archives shared with the Web. Bloodcraft traces filed daily.</div></div>
+      <div class="op"><div class="city">Mercantile Haven</div><div class="ops-line">Free State sufferance</div><div class="note">Web operates by guild license. Tallies are read; coin is read; nothing is private.</div></div>
+      <div class="op"><div class="city">Fenhold</div><div class="ops-line">Pack hostility</div><div class="note">Web operatives expelled. Information arrives by courier only.</div></div>
+      <div class="op"><div class="city">Sable Port</div><div class="ops-line">Tidal blind spots</div><div class="note">Stage C neap clouds memory-binding. The port is briefly unread every fifteen days.</div></div>
+      <div class="op"><div class="city">Outlying Villages</div><div class="ops-line">Itinerant scribe</div><div class="note">One travelling operative serves a district. Files updated quarterly.</div></div>
+    </div>
+
+    <div class="footing">
+      <span>Drow Autonomy · Office of the Web</span>
+      <svg class="web-glyph" width="40" height="40" viewBox="0 0 40 40"><g stroke="#3a2010" stroke-width=".5" fill="none"><circle cx="20" cy="20" r="18"/><circle cx="20" cy="20" r="13"/><circle cx="20" cy="20" r="8"/><circle cx="20" cy="20" r="3"/><line x1="20" y1="2" x2="20" y2="38"/><line x1="2" y1="20" x2="38" y2="20"/><line x1="7" y1="7" x2="33" y2="33"/><line x1="33" y1="7" x2="7" y2="33"/></g></svg>
+      <span>Bound by Compact · Read by Sigil</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  const responses = [
+    "No file is opened. Persons of this tier may move freely, though the Web's <em>absence</em> of attention is rarely permanent. Establish bona fides through a known broker before approaching faction territory.",
+    "A single operative has filed a note. Movement is plausible without consequence — but the file exists, and a second sighting will be cross-referenced. Avoid repeating recent patterns.",
+    "Movements are catalogued. Expect tail and counter-tail. Memory-binding ensures recent days are recoverable by Inquisition request; act as if your week is on the page.",
+    "A House Matriarch has read the dossier. Inquiries arrive without announcement. Allies receive quiet visitors; debts are called. The window for unflagged action has closed.",
+    "<em>Sanction is in motion.</em> Operatives will not approach in conversation. The next contact is the action itself. Cross factional borders or accept the resolution the Web has prepared."
+  ];
+  const tiers = document.querySelectorAll('.tier');
+  const body = document.getElementById('responseBody');
+  tiers.forEach(t => t.addEventListener('click', () => {
+    tiers.forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    body.innerHTML = responses[parseInt(t.dataset.tier,10)];
+  }));
+</script>
+</body>
+</html>
